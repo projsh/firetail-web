@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Spring boot music prototype</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+    <h1>Spring boot music prototype</h1>
+    <p>this is NOT designed for everyday use, hence *prototype*</p>
+    <input type="text" id="customDir" placeholder="Enter directory location">
+    <br>
+    <button id="setDir">Set Directory</button>
+    <br>
+    <span id="thing">http://</span>
+    <select id="songInput"></select>
+    <br>
+    <button id="playAudio">Play song</button>
+    <br>
+    <button id="pausePlay">Pause</button>
+    <br>
+    <span id="duration">-:-- / -:--</span>
+    <input type="range" step="0.01" id="seek">
+    <script src="index.js"></script>
+    <style>
+        body {
+            background: #181818;
+            color: #dddddd;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #seek, #customDir {
+            width: 300px;
+        }
+
+        #songInput {
+            max-width: 350px;
+        }
+    </style>
+</body>
+</html>
