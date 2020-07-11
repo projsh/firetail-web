@@ -2,8 +2,8 @@
 
 <Form version="1.3" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <Properties>
-    <Property name="defaultCloseOperation" type="int" value="3"/>
-    <Property name="title" type="java.lang.String" value="Spring Boot Music Prototype"/>
+    <Property name="defaultCloseOperation" type="int" value="0"/>
+    <Property name="title" type="java.lang.String" value="Firetail Web"/>
     <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
       <Dimension value="[350, 250]"/>
     </Property>
@@ -90,7 +90,7 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="updateResources" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="209" max="32767" attributes="0"/>
+                      <EmptySpace pref="187" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -130,7 +130,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="496" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="501" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -139,7 +139,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="253" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="237" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -158,7 +158,11 @@
                     <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
                       <StringArray count="0"/>
                     </Property>
+                    <Property name="selectionMode" type="int" value="0"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="listSongsMouseClicked"/>
+                  </Events>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
                   </AuxValues>
@@ -181,17 +185,16 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jLabel1" pref="496" max="32767" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
+                          <Group type="102" attributes="0">
                               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                               <Component id="jLabel2" max="32767" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
+                          <Group type="102" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jLabel3" pref="0" max="32767" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="jLabel3" pref="0" max="32767" attributes="0"/>
+                                  <Component id="jLabel1" pref="501" max="32767" attributes="0"/>
+                              </Group>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -206,7 +209,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel3" pref="135" max="32767" attributes="0"/>
+                      <Component id="jLabel3" pref="163" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -218,7 +221,7 @@
                   <Font name="Segoe UI" size="36" style="1"/>
                 </Property>
                 <Property name="horizontalAlignment" type="int" value="0"/>
-                <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;center&gt;Spring Boot Music&lt;br&gt;Prototype&lt;/center&gt;&lt;/html&gt;"/>
+                <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;center&gt;Firetail Web (beta)&lt;/center&gt;&lt;/html&gt;"/>
                 <Property name="horizontalTextPosition" type="int" value="0"/>
               </Properties>
             </Component>
@@ -231,8 +234,9 @@
             <Component class="javax.swing.JLabel" name="jLabel3">
               <Properties>
                 <Property name="horizontalAlignment" type="int" value="0"/>
-                <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;center&gt;WARNING: This project is a prototype and is NOT designed for everyday purposes. Use at your own risk.&lt;br&gt;This project has only been tested on Windows.&lt;/center&gt;&lt;/html&gt;"/>
+                <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;center&gt;WARNING: This project is incomplete and is not designed for everyday use. Use at your own risk.&lt;/center&gt;&lt;/html&gt;"/>
                 <Property name="verticalAlignment" type="int" value="1"/>
+                <Property name="name" type="java.lang.String" value="" noResource="true"/>
               </Properties>
             </Component>
           </SubComponents>

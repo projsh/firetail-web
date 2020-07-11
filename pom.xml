@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.0.RELEASE</version>
+		<version>2.3.1.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>xyz.projsh</groupId>
-	<artifactId>springmusicproto</artifactId>
+	<artifactId>firetailweb</artifactId>
 	<version>0.0.1</version>
-	<name>spring-boot-music-prototype</name>
-	<description>Spring boot music prototype</description>
+	<name>firetail-web</name>
+	<description>Browser version of Firetail</description>
 
 	<properties>
 		<java.version>11</java.version>
@@ -40,6 +40,13 @@
                     <artifactId>flatlaf</artifactId>
                     <version>0.35</version>
                 </dependency>
+                
+                <dependency>
+                    <groupId>com.mpatric</groupId>
+                    <artifactId>mp3agic</artifactId>
+                    <version>0.9.1</version>
+                </dependency>
+
 	</dependencies>
 
 	<build>

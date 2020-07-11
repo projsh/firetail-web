@@ -1,5 +1,6 @@
-package xyz.projsh.springmusicproto;
+package xyz.projsh.firetailweb.ui;
 
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
@@ -18,9 +19,9 @@ import javax.swing.Action;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JTabbedPane;
-import javax.swing.WindowConstants;
+import xyz.projsh.firetailweb.FiretailWeb;
 
-public class WebGui extends javax.swing.JFrame {
+public class MainUI extends javax.swing.JFrame {
     
     public Set<String> listFilesUsingDirectoryStream(String dir) throws IOException {
         Set<String> fileList = new HashSet<>();
@@ -34,16 +35,16 @@ public class WebGui extends javax.swing.JFrame {
         return fileList;
     }
     
-    public WebGui() {
+    public MainUI() {
         initComponents();
-        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        setLocationRelativeTo(null);
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent ev) {
                 setState(ICONIFIED);
             }
         });
-        resourceField.setText(SpringMusicProto.musLoc);
+        resourceField.setText(FiretailWeb.musLoc);
         mainTabPane.addChangeListener(e -> {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             switch (pane.getTitleAt(pane.getSelectedIndex())) {
@@ -128,8 +129,8 @@ public class WebGui extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         exitButton = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Spring Boot Music Prototype");
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setTitle("Firetail Web");
         setMinimumSize(new java.awt.Dimension(350, 250));
 
         updateResources.setText("Update resources & restart server");
@@ -171,11 +172,17 @@ public class WebGui extends javax.swing.JFrame {
                     .addComponent(chooseFolderButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(updateResources)
-                .addContainerGap(209, Short.MAX_VALUE))
+                .addContainerGap(187, Short.MAX_VALUE))
         );
 
         mainTabPane.addTab("Settings", jPanel1);
 
+        listSongs.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        listSongs.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                listSongsMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(listSongs);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -184,14 +191,14 @@ public class WebGui extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 501, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 237, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -199,15 +206,16 @@ public class WebGui extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("<html><center>Spring Boot Music<br>Prototype</center></html>");
+        jLabel1.setText("<html><center>Firetail Web (beta)</center></html>");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("Copyright © 2020 projsh_");
 
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel3.setText("<html><center>WARNING: This project is a prototype and is NOT designed for everyday purposes. Use at your own risk.<br>This project has only been tested on Windows.</center></html>");
+        jLabel3.setText("<html><center>WARNING: This project is incomplete and is not designed for everyday use. Use at your own risk.</center></html>");
         jLabel3.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jLabel3.setName(""); // NOI18N
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -216,14 +224,13 @@ public class WebGui extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 501, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -234,7 +241,7 @@ public class WebGui extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE))
+                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE))
         );
 
         mainTabPane.addTab("About", jPanel3);
@@ -269,26 +276,33 @@ public class WebGui extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void updateResourcesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateResourcesActionPerformed
-        SpringMusicProto.musLoc = resourceField.getText();
-        SpringMusicProto.doRestart();
+        FiretailWeb.musLoc = resourceField.getText();
+        FiretailWeb.doRestart();
     }//GEN-LAST:event_updateResourcesActionPerformed
 
     private void chooseFolderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseFolderButtonActionPerformed
         JFileChooser getDir = new JFileChooser();
         getDir.setDialogTitle("Choose folder");
-        getDir.setCurrentDirectory(new java.io.File(SpringMusicProto.musLoc));
+        getDir.setCurrentDirectory(new java.io.File(FiretailWeb.musLoc));
         getDir.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         getDir.setAcceptAllFileFilterUsed(false);
         Action details = getDir.getActionMap().get("viewTypeDetails");
         details.actionPerformed(null);
         if (getDir.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            resourceField.setText(getDir.getSelectedFile().getAbsolutePath() + "\\");
+            resourceField.setText(getDir.getSelectedFile().getAbsolutePath() + "/");
         }
     }//GEN-LAST:event_chooseFolderButtonActionPerformed
 
     private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitButtonActionPerformed
         System.exit(0);
     }//GEN-LAST:event_exitButtonActionPerformed
+
+    private void listSongsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listSongsMouseClicked
+        if (evt.getClickCount() == 2 && evt.getButton() == MouseEvent.BUTTON1) {
+            int index = listSongs.locationToIndex(evt.getPoint());
+            new MetadataUI(listSongs.getModel().getElementAt(index)).setVisible(true);
+        }
+    }//GEN-LAST:event_listSongsMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton chooseFolderButton;

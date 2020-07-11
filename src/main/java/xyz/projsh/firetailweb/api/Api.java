@@ -1,4 +1,4 @@
-package xyz.projsh.springmusicproto.api;
+package xyz.projsh.firetailweb.api;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import xyz.projsh.springmusicproto.SpringMusicProto;
+import xyz.projsh.firetailweb.FiretailWeb;
 
 @RestController
 @RequestMapping("/api")
@@ -46,7 +46,7 @@ public class Api {
     
     @GetMapping("/getfiles")
     public Set<String> getFiles() throws IOException {
-        Set<String> lol = listFilesUsingDirectoryStream(SpringMusicProto.musLoc);
+        Set<String> lol = listFilesUsingDirectoryStream(FiretailWeb.musLoc);
         return lol;
     }
     
@@ -55,7 +55,7 @@ public class Api {
         Thread restartThread = new Thread(() -> {
             try {
                 Thread.sleep(1000);
-                SpringMusicProto.restart();
+                FiretailWeb.restart();
                 
             } catch (InterruptedException err) {
             
@@ -67,13 +67,13 @@ public class Api {
     
     @GetMapping("/currentDir")
     public String currentDir() {
-        return SpringMusicProto.musLoc;
+        return FiretailWeb.musLoc;
     }
     
     @PostMapping("/updateLoc")
     public void updateLoc(@RequestBody String dir) {
-        SpringMusicProto.musLoc = dir;
-        SpringMusicProto.doRestart();
+        FiretailWeb.musLoc = dir;
+        FiretailWeb.doRestart();
     }
     
 }

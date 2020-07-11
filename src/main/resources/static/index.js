@@ -47,7 +47,7 @@ document.querySelector('#setDir').addEventListener('click', () => {
         headers: {
             'Content-Type': 'text/plain'
         },
-        body: document.querySelector('#customDir').value + '\\'
+        body: document.querySelector('#customDir').value + '/'
     }).then(() => {
         alert('the new directory has been set! the server is now restarting. this page will attempt to reload once this message is closed');
         location.reload();

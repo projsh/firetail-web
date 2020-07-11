@@ -1,5 +1,6 @@
-package xyz.projsh.springmusicproto;
+package xyz.projsh.firetailweb;
 
+import xyz.projsh.firetailweb.ui.MainUI;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -13,7 +14,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @SpringBootApplication
 @EnableWebMvc
-public class SpringMusicProto {
+public class FiretailWeb {
     
     public static String musLoc = String.format("%s/Music/", System.getProperty("user.home"));
     
@@ -28,22 +29,22 @@ public class SpringMusicProto {
             con.getInputStream();
             System.out.println("lol");
         } catch (Exception ex) {
-            Logger.getLogger(WebGui.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
     public static void restart() {
         context.close();
-        SpringMusicProto.context = SpringApplication.run(SpringMusicProto.class, args);
+        FiretailWeb.context = SpringApplication.run(FiretailWeb.class, args);
     }
     
     public static void main(String[] args) {
         FlatDarculaLaf.install();
-	SpringMusicProto.args = args;
-        SpringMusicProto.context = SpringApplication.run(SpringMusicProto.class, args);
+	FiretailWeb.args = args;
+        FiretailWeb.context = SpringApplication.run(FiretailWeb.class, args);
 	System.setProperty("java.awt.headless", "false");
 	SwingUtilities.invokeLater(() -> {
-            new WebGui().setVisible(true);
+            new MainUI().setVisible(true);
 	});
     }
 

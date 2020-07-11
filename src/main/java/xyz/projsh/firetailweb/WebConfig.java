@@ -1,4 +1,4 @@
-package xyz.projsh.springmusicproto;
+package xyz.projsh.firetailweb;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -17,7 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
     
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String musicLoc = String.format("file:/%s", new SpringMusicProto().musLoc);
+        String musicLoc = String.format("file:%s", new FiretailWeb().musLoc);
         System.out.println(musicLoc);
         registry.addResourceHandler("/audio/**").addResourceLocations(musicLoc);
         registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
