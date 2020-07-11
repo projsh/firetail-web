@@ -1,5 +1,5 @@
-# spring-boot-music-prototype
+# Firetail Web
 
-This is a music streaming prototype, which will eventually be used for a later project. This prototype is used to help further my Java and backend skills. (I still suck at both)
+This is a browser version of Firetail. I'm making this for my final year 12 software dev project.
 
-**WARNING:** This project is a prototype and is __NOT__ designed for everyday purposes. Use at your own risk. This project has only been tested on Windows.
+**WARNING:** This project is incomplete and is not designed for everyday use. Use at your own risk.
