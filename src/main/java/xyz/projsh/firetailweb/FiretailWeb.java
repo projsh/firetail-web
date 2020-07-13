@@ -2,6 +2,9 @@ package xyz.projsh.firetailweb;
 
 import xyz.projsh.firetailweb.ui.MainUI;
 import com.formdev.flatlaf.FlatDarculaLaf;
+import com.mongodb.ConnectionString;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoClient;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.logging.Level;
@@ -20,6 +23,8 @@ public class FiretailWeb {
     
     private static String[] args;
     private static ConfigurableApplicationContext context;
+    
+    public MongoClient mongodb;
     
     public static void doRestart() {
         try {
@@ -40,6 +45,7 @@ public class FiretailWeb {
     
     public static void main(String[] args) {
         FlatDarculaLaf.install();
+        new Database();
 	FiretailWeb.args = args;
         FiretailWeb.context = SpringApplication.run(FiretailWeb.class, args);
 	System.setProperty("java.awt.headless", "false");

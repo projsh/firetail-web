@@ -1,19 +1,17 @@
 package xyz.projsh.firetailweb.api;
 
+import com.mongodb.client.FindIterable;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import org.bson.Document;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import xyz.projsh.firetailweb.Database;
 import xyz.projsh.firetailweb.FiretailWeb;
 
 @RestController
@@ -29,25 +27,14 @@ public class Api {
         return name.substring(lastIndexOf);
     }
     
-    private String[] fileExts = {".mp3", ".flac", ".m4a", ".acc", ".wav", ".ogg"};
-    
-    private Set<String> listFilesUsingDirectoryStream(String dir) throws IOException {
-        Set<String> fileList = new HashSet<>();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dir))) {
-            for (Path path : stream) {
-                String ext = getFileExtension(new File(path.getFileName().toString()));
-                if (!Files.isDirectory(path) && Arrays.asList(fileExts).indexOf(ext) != -1) {
-                    fileList.add(path.getFileName().toString());
-                }
-            }
-        }
-        return fileList;
-    }
-    
     @GetMapping("/getfiles")
     public Set<String> getFiles() throws IOException {
-        Set<String> lol = listFilesUsingDirectoryStream(FiretailWeb.musLoc);
-        return lol;
+        FindIterable<Document> songs = Database.songs.find();
+        Set<String> files = new HashSet<>();
+        for (Document song : songs) {
+            files.add(song.getString("fileName"));
+        }
+        return files;
     }
     
     @GetMapping("/restart")

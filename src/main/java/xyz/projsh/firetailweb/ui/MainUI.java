@@ -1,10 +1,12 @@
 package xyz.projsh.firetailweb.ui;
 
+import com.mongodb.Block;
+import com.mongodb.client.FindIterable;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.List;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -15,10 +17,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JTabbedPane;
+import org.bson.Document;
+import xyz.projsh.firetailweb.Database;
 import xyz.projsh.firetailweb.FiretailWeb;
 
 public class MainUI extends javax.swing.JFrame {
@@ -37,6 +43,7 @@ public class MainUI extends javax.swing.JFrame {
     
     public MainUI() {
         initComponents();
+        addSongLabel.setVisible(false);
         setLocationRelativeTo(null);
         addWindowListener(new WindowAdapter() {
             @Override
@@ -49,37 +56,7 @@ public class MainUI extends javax.swing.JFrame {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             switch (pane.getTitleAt(pane.getSelectedIndex())) {
                 case "Songs":
-                    Thread lol = new Thread(() -> {
-                        try {
-                            URL url = new URL("http://localhost:8080/api/getfiles");
-                            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                            con.setRequestMethod("GET");
-                            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                            String inputLine;
-                            StringBuilder content = new StringBuilder();
-                            while ((inputLine = in.readLine()) != null) {
-                                content.append(inputLine);
-                            }
-                            in.close();
-                            con.disconnect();
-                            String fin = content.toString();
-                            fin = fin.substring(2, (int) fin.length() - 2);
-                            String[] finAr = fin.split("\"");
-                            List<String> finL = List.of(finAr);
-                            int index = 0;
-                            DefaultListModel listModel = new DefaultListModel();
-                            for (String el : finL) {
-                                if (!el.equals(",")) {
-                                    listModel.addElement(finL.get(index));
-                                }
-                                index++;
-                            }
-                            listSongs.setModel(listModel);
-                        } catch(IOException err) {
-
-                        }
-                    });
-                    lol.start();
+                    updateSongList();
                 break;
                 case "Settings":
                     Thread getDir = new Thread(() -> {
@@ -105,6 +82,16 @@ public class MainUI extends javax.swing.JFrame {
             }
         });
     }
+    
+    private void updateSongList() {
+        DefaultListModel listModel = new DefaultListModel();
+        FindIterable<Document> songs = Database.songs.find();
+        for (Document song : songs) {
+            String fileName = song.getString("fileName");
+            listModel.addElement(fileName);
+        }
+        listSongs.setModel(listModel);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -123,6 +110,10 @@ public class MainUI extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         listSongs = new javax.swing.JList<>();
+        addSongsButton = new javax.swing.JButton();
+        updateListButton = new javax.swing.JButton();
+        addSongLabel = new javax.swing.JLabel();
+        dropSongsButton = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -155,7 +146,7 @@ public class MainUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(resourceField, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
+                        .addComponent(resourceField, javax.swing.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(chooseFolderButton))
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -185,20 +176,58 @@ public class MainUI extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(listSongs);
 
+        addSongsButton.setText("Add songs");
+        addSongsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addSongsButtonActionPerformed(evt);
+            }
+        });
+
+        updateListButton.setText("Update List");
+        updateListButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                updateListButtonActionPerformed(evt);
+            }
+        });
+
+        addSongLabel.setText("Adding songs to database...");
+
+        dropSongsButton.setText("Drop Songs");
+        dropSongsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dropSongsButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 501, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addComponent(addSongLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(dropSongsButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(updateListButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(addSongsButton)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+            .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 237, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addSongsButton)
+                    .addComponent(updateListButton)
+                    .addComponent(addSongLabel)
+                    .addComponent(dropSongsButton))
                 .addContainerGap())
         );
 
@@ -230,7 +259,7 @@ public class MainUI extends javax.swing.JFrame {
                         .addContainerGap()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 501, Short.MAX_VALUE))))
+                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 503, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -261,7 +290,7 @@ public class MainUI extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(exitButton)
                 .addContainerGap())
-            .addComponent(mainTabPane)
+            .addComponent(mainTabPane, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -301,11 +330,45 @@ public class MainUI extends javax.swing.JFrame {
         if (evt.getClickCount() == 2 && evt.getButton() == MouseEvent.BUTTON1) {
             int index = listSongs.locationToIndex(evt.getPoint());
             new MetadataUI(listSongs.getModel().getElementAt(index)).setVisible(true);
+            Database.addSong(listSongs.getModel().getElementAt(index));
         }
     }//GEN-LAST:event_listSongsMouseClicked
 
+    private void addSongsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSongsButtonActionPerformed
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Choose audio files");
+        chooser.setCurrentDirectory(new java.io.File(FiretailWeb.musLoc));
+        chooser.setMultiSelectionEnabled(true);
+        Action details = chooser.getActionMap().get("viewTypeDetails");
+        details.actionPerformed(null);
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            addSongLabel.setVisible(true);
+            Thread addSongs = new Thread(() -> {
+                File[] files = chooser.getSelectedFiles();
+                for (File file : files) {
+                    Database.addSong(file.getName());
+                }
+                updateSongList();
+                addSongLabel.setVisible(false);
+            });
+            addSongs.start();
+        }
+    }//GEN-LAST:event_addSongsButtonActionPerformed
+
+    private void updateListButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateListButtonActionPerformed
+        updateSongList();
+    }//GEN-LAST:event_updateListButtonActionPerformed
+
+    private void dropSongsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dropSongsButtonActionPerformed
+        Database.songs.drop();
+        updateSongList();
+    }//GEN-LAST:event_dropSongsButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel addSongLabel;
+    private javax.swing.JButton addSongsButton;
     private javax.swing.JButton chooseFolderButton;
+    private javax.swing.JButton dropSongsButton;
     private javax.swing.JButton exitButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -317,6 +380,7 @@ public class MainUI extends javax.swing.JFrame {
     private javax.swing.JList<String> listSongs;
     private javax.swing.JTabbedPane mainTabPane;
     private javax.swing.JTextField resourceField;
+    private javax.swing.JButton updateListButton;
     private javax.swing.JButton updateResources;
     // End of variables declaration//GEN-END:variables
 }
