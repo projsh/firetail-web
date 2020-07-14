@@ -13,13 +13,11 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("forward:/index.html");
+        registry.addViewController("/prototype").setViewName("forward:/prototype/index.html");
     }
     
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String musicLoc = String.format("file:%s", new FiretailWeb().musLoc);
-        System.out.println(musicLoc);
-        registry.addResourceHandler("/audio/**").addResourceLocations(musicLoc);
         registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
     }
     

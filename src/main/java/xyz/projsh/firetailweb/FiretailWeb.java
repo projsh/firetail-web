@@ -2,8 +2,6 @@ package xyz.projsh.firetailweb;
 
 import xyz.projsh.firetailweb.ui.MainUI;
 import com.formdev.flatlaf.FlatDarculaLaf;
-import com.mongodb.ConnectionString;
-import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoClient;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -19,12 +17,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableWebMvc
 public class FiretailWeb {
     
-    public static String musLoc = String.format("%s/Music/", System.getProperty("user.home"));
-    
     private static String[] args;
     private static ConfigurableApplicationContext context;
-    
-    public MongoClient mongodb;
     
     public static void doRestart() {
         try {

@@ -1,7 +1,7 @@
 package xyz.projsh.firetailweb.ui;
 
-import com.mongodb.Block;
 import com.mongodb.client.FindIterable;
+import static com.mongodb.client.model.Filters.eq;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -17,15 +17,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JTabbedPane;
 import org.bson.Document;
 import xyz.projsh.firetailweb.Database;
-import xyz.projsh.firetailweb.FiretailWeb;
 
 public class MainUI extends javax.swing.JFrame {
     
@@ -51,7 +48,7 @@ public class MainUI extends javax.swing.JFrame {
                 setState(ICONIFIED);
             }
         });
-        resourceField.setText(FiretailWeb.musLoc);
+        //resourceField.setText(FiretailWeb.musLoc);
         mainTabPane.addChangeListener(e -> {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             switch (pane.getTitleAt(pane.getSelectedIndex())) {
@@ -72,7 +69,6 @@ public class MainUI extends javax.swing.JFrame {
                             }
                             in.close();
                             con.disconnect();
-                            resourceField.setText(content.toString());
                         } catch(IOException err) {
                             
                         }
@@ -104,9 +100,8 @@ public class MainUI extends javax.swing.JFrame {
 
         mainTabPane = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
-        updateResources = new javax.swing.JButton();
-        resourceField = new javax.swing.JTextField();
-        chooseFolderButton = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         listSongs = new javax.swing.JList<>();
@@ -124,45 +119,29 @@ public class MainUI extends javax.swing.JFrame {
         setTitle("Firetail Web");
         setMinimumSize(new java.awt.Dimension(350, 250));
 
-        updateResources.setText("Update resources & restart server");
-        updateResources.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                updateResourcesActionPerformed(evt);
-            }
-        });
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel4.setText("Server is active!");
 
-        chooseFolderButton.setText("Choose Folder");
-        chooseFolderButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                chooseFolderButtonActionPerformed(evt);
-            }
-        });
+        jLabel5.setText("No settings are available quite yet...");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(17, 17, 17)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(resourceField, javax.swing.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(chooseFolderButton))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(updateResources)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(200, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(resourceField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(chooseFolderButton))
+                .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(updateResources)
+                .addComponent(jLabel5)
                 .addContainerGap(187, Short.MAX_VALUE))
         );
 
@@ -290,7 +269,7 @@ public class MainUI extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(exitButton)
                 .addContainerGap())
-            .addComponent(mainTabPane, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE)
+            .addComponent(mainTabPane)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -304,24 +283,6 @@ public class MainUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void updateResourcesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateResourcesActionPerformed
-        FiretailWeb.musLoc = resourceField.getText();
-        FiretailWeb.doRestart();
-    }//GEN-LAST:event_updateResourcesActionPerformed
-
-    private void chooseFolderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseFolderButtonActionPerformed
-        JFileChooser getDir = new JFileChooser();
-        getDir.setDialogTitle("Choose folder");
-        getDir.setCurrentDirectory(new java.io.File(FiretailWeb.musLoc));
-        getDir.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        getDir.setAcceptAllFileFilterUsed(false);
-        Action details = getDir.getActionMap().get("viewTypeDetails");
-        details.actionPerformed(null);
-        if (getDir.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            resourceField.setText(getDir.getSelectedFile().getAbsolutePath() + "/");
-        }
-    }//GEN-LAST:event_chooseFolderButtonActionPerformed
-
     private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitButtonActionPerformed
         System.exit(0);
     }//GEN-LAST:event_exitButtonActionPerformed
@@ -329,15 +290,20 @@ public class MainUI extends javax.swing.JFrame {
     private void listSongsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listSongsMouseClicked
         if (evt.getClickCount() == 2 && evt.getButton() == MouseEvent.BUTTON1) {
             int index = listSongs.locationToIndex(evt.getPoint());
-            new MetadataUI(listSongs.getModel().getElementAt(index)).setVisible(true);
-            Database.addSong(listSongs.getModel().getElementAt(index));
+            FindIterable<Document> songs = Database.songs.find(eq("fileName", listSongs.getModel().getElementAt(index)));
+            String dir = "";
+            for (Document song : songs) {
+                dir = new File(song.getString("location")).getAbsolutePath();
+                new MetadataUI(dir, listSongs.getModel().getElementAt(index)).setVisible(true);
+                break;
+            }
         }
     }//GEN-LAST:event_listSongsMouseClicked
 
     private void addSongsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSongsButtonActionPerformed
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Choose audio files");
-        chooser.setCurrentDirectory(new java.io.File(FiretailWeb.musLoc));
+        chooser.setCurrentDirectory(new File(String.format("%s/Music/", System.getProperty("user.home"))));
         chooser.setMultiSelectionEnabled(true);
         Action details = chooser.getActionMap().get("viewTypeDetails");
         details.actionPerformed(null);
@@ -346,7 +312,7 @@ public class MainUI extends javax.swing.JFrame {
             Thread addSongs = new Thread(() -> {
                 File[] files = chooser.getSelectedFiles();
                 for (File file : files) {
-                    Database.addSong(file.getName());
+                    Database.addSong(file.getAbsolutePath(), file.getName());
                 }
                 updateSongList();
                 addSongLabel.setVisible(false);
@@ -367,20 +333,19 @@ public class MainUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel addSongLabel;
     private javax.swing.JButton addSongsButton;
-    private javax.swing.JButton chooseFolderButton;
     private javax.swing.JButton dropSongsButton;
     private javax.swing.JButton exitButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JList<String> listSongs;
     private javax.swing.JTabbedPane mainTabPane;
-    private javax.swing.JTextField resourceField;
     private javax.swing.JButton updateListButton;
-    private javax.swing.JButton updateResources;
     // End of variables declaration//GEN-END:variables
 }

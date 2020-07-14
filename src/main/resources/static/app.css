@@ -1,0 +1,35 @@
+body {
+    margin: 0;
+    background-color: var(--bg);
+    font-family: 'Inter', 'Overpass', 'Dosis', Arial, Helvetica, sans-serif !important;
+    user-select: none;
+}
+
+html.dark {
+    --bg: #181818;
+    --text: #dfdfdf;
+    --fg-bg: #1e1e1e;
+    --bd: #3a3a3a;
+    --li-hv: #212121;
+    --logo: 0.9;
+    --switch: #3d3d3d;
+    --hl: #252525;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 180px;
+    height: 100%;
+    border-right: solid 2px var(--bd);
+    position: fixed;
+    background-color: var(--fg-bg);
+}
+
+.np-top {
+    width: calc(100% - 182px);
+    height: 85px;
+    border-bottom: solid 2px var(--bd);
+    position: fixed;
+    background-color: var(--fg-bg);
+    margin-left: 182px;
+}

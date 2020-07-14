@@ -20,15 +20,6 @@ import xyz.projsh.firetailweb.FiretailWeb;
 @RestController
 @RequestMapping("/api")
 public class Api {
-
-    private String getFileExtension(File file) {
-        String name = file.getName();
-        int lastIndexOf = name.lastIndexOf(".");
-        if (lastIndexOf == -1) {
-            return "";
-        }
-        return name.substring(lastIndexOf);
-    }
     
     @GetMapping("/getfiles")
     public Set<String> getFiles() throws IOException {
@@ -53,17 +44,6 @@ public class Api {
         });
         restartThread.setDaemon(false);
         restartThread.start();
-    }
-    
-    @GetMapping("/currentDir")
-    public String currentDir() {
-        return FiretailWeb.musLoc;
-    }
-    
-    @PostMapping("/updateLoc")
-    public void updateLoc(@RequestBody String dir) {
-        FiretailWeb.musLoc = dir;
-        FiretailWeb.doRestart();
     }
     
     @PostMapping("/getFile")

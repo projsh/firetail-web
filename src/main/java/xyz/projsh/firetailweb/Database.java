@@ -1,6 +1,5 @@
 package xyz.projsh.firetailweb;
 
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -21,18 +20,18 @@ public class Database {
     public MongoDatabase db;
     public static MongoCollection<Document> songs;
     
-    private static String[] getMetadata(String fileName) {
+    private static String[] getMetadata(String fileLoc) {
         String[] songMetadata = new String[3];
         Thread getMetadata = new Thread(() -> {
             try {
-                Mp3File mp3file = new Mp3File(String.format("%s%s", FiretailWeb.musLoc, fileName));
+                Mp3File mp3file = new Mp3File(fileLoc);
                 if (mp3file.hasId3v2Tag()) {
                     ID3v2 tag = mp3file.getId3v2Tag();
                     songMetadata[0] = tag.getTitle();
                     songMetadata[1] = tag.getArtist();
                     songMetadata[2] = tag.getAlbum();
                     if (songMetadata[0] == null) {
-                        songMetadata[0] = fileName.substring(0, fileName.length() - 4);
+                        songMetadata[0] = fileLoc.substring(0, fileLoc.length() - 4);
                     }
                     if (songMetadata[1] == null) {
                         songMetadata[1] = "Unknown Artist";
@@ -77,12 +76,12 @@ public class Database {
         return song.toJson();
     }
     
-    public static void addSong(String fileName) {
-        String[] songMetadata = getMetadata(fileName);
+    public static void addSong(String fileLoc, String fileName) {
+        String[] songMetadata = getMetadata(fileLoc);
         Document newSong = new Document("title", songMetadata[0])
                 .append("artist", songMetadata[1])
                 .append("album", songMetadata[2])
-                .append("location", String.format("%s%s", FiretailWeb.musLoc, fileName))
+                .append("location", fileLoc)
                 .append("fileName", fileName);
         songs.insertOne(newSong);
     }

@@ -1,44 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Spring boot music prototype</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="app.css">
+    <title>Firetail Web</title>
 </head>
 <body>
-    <h1>Firetail Web Prototype UI</h1>
-    <p>this is NOT designed for everyday use, hence *prototype*</p>
-    <input type="text" id="customDir" placeholder="Enter directory location">
-    <br>
-    <button id="setDir">Set Directory</button>
-    <br>
-    <span id="thing">http://</span>
-    <select id="songInput"></select>
-    <br>
-    <button id="playAudio">Play song</button>
-    <br>
-    <button id="pausePlay">Pause</button>
-    <br>
-    <span id="duration">-:-- / -:--</span>
-    <input type="range" step="0.01" id="seek">
-    <script src="index.js"></script>
-    <style>
-        body {
-            background: #181818;
-            color: #dddddd;
-            display: flex;
-            align-items: center;
-            flex-direction: column;
-        }
+    <div class="app">
+        <div class="sidebar"></div>
+        <div class="np-top"></div>
+        <div class="main-ui">
 
-        #seek, #customDir {
-            width: 300px;
-        }
-
-        #songInput {
-            max-width: 350px;
-        }
-    </style>
+        </div>
+    </div>
+    <script src="app.js"></script>
 </body>
 </html>

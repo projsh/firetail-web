@@ -13,14 +13,14 @@ import xyz.projsh.firetailweb.FiretailWeb;
 
 public class MetadataUI extends javax.swing.JFrame {
 
-    public MetadataUI(String file) {
+    public MetadataUI(String file, String fileName) {
         initComponents();
         setLocationRelativeTo(null);
         this.setTitle("Metadata for " + file);
         String[] songMetadata = new String[3];
         Thread getMetadata = new Thread(() -> {
             try {
-                Mp3File mp3file = new Mp3File(String.format("%s/%s", FiretailWeb.musLoc, file));
+                Mp3File mp3file = new Mp3File(file);
                 if (mp3file.hasId3v2Tag()) {
                     ID3v2 tag = mp3file.getId3v2Tag();
                     songMetadata[0] = tag.getTitle();
