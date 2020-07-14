@@ -39,14 +39,16 @@ let songURL;
 let playAudio = song => {
     if (audio != undefined) {
         audio.removeEventListener('timeupdate', timeUpdate);
-        audio.src = song;
+        audio.removeEventListener('progress', progress);
+            audio.src = song;
+            audio.play();
+            audio.addEventListener('timeupdate', timeUpdate);
+            return;
+        }
+        audio = new Audio(song);
         audio.play();
         audio.addEventListener('timeupdate', timeUpdate);
-        return;
-    }
-    audio = new Audio(song);
-    audio.play();
-    audio.addEventListener('timeupdate', timeUpdate);
+        audio.addEventListener('progress', progress);
 }
 
 let timeFormat = s => {
@@ -61,30 +63,18 @@ let timeFormat = s => {
 playButton.addEventListener("click", () => {
     let sbFix = songInput.selectedOptions[0].textContent.replace(/[\[]/g, "%5B").replace(/[\]]/g, "%5D").replace(/[\(]/g, "%28").replace(/[\)]/g, "%29");
     let song = `http://${hostnamePort}/audio/${sbFix}`;
-    if (/Mobi|Android/i.test(navigator.userAgent)) {
-        playAudio(song);
-    } else {
-        fetch(`http://${hostnamePort}/api/getFile`, {
+    fetch(`http://${hostnamePort}/api/getFileNew`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
             },
             body: songInput.selectedOptions[0].textContent
         }).then(resp => {
-            if (resp.ok) {
-                if (songURL) {
-                    window.URL.revokeObjectURL(songURL);
-                }
-                resp.arrayBuffer().then(buffer => {
-                    let blob = new Blob([buffer], {type: 'audio/mp3'});
-                    songURL = window.URL.createObjectURL(blob);
-                    playAudio(songURL);
-                })
-            } else {
-                alert('could not play song! does it even exist??');
-            }
+            resp.blob().then(resp => {
+                url = window.URL.createObjectURL(resp)
+                playAudio(url)
+            })
         })
-    }
 });
 
 let seekBar = document.querySelector('#seek');
@@ -92,6 +82,18 @@ let seekBar = document.querySelector('#seek');
 let timeUpdate = () => {
     seekBar.value = (audio.currentTime / audio.duration) * 100;
     document.querySelector('#duration').textContent = `${timeFormat(audio.currentTime)} / ${timeFormat(audio.duration)}`;
+}
+
+let progress = () => {
+    let duration = audio.duration;
+    if (duration > 0) {
+        for (var i = 0; i < audio.buffered.length; i++) {
+            if (audio.buffered.start(audio.buffered.length - 1 - i) < audio.currentTime) {
+                console.log((audio.buffered.end(audio.buffered.length - 1 - i) / duration) * 100 + "%");
+                break;
+            }
+        }
+    }
 }
 
 seekBar.addEventListener('change', evt => {
