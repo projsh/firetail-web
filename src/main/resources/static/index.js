@@ -56,6 +56,8 @@ document.querySelector('#setDir').addEventListener('click', () => {
     })
 })
 
+let songURL;
+
 let playAudio = song => {
     if (audio != undefined) {
         audio.removeEventListener('timeupdate', timeUpdate);
@@ -84,9 +86,22 @@ playButton.addEventListener("click", () => {
     if (/Mobi|Android/i.test(navigator.userAgent)) {
         playAudio(song);
     } else {
-        fetch(song).then(resp => {
+        fetch(`http://${hostnamePort}/api/getFile`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain'
+            },
+            body: songInput.selectedOptions[0].textContent
+        }).then(resp => {
             if (resp.ok) {
-                playAudio(song);
+                if (songURL) {
+                    window.URL.revokeObjectURL(songURL);
+                }
+                resp.arrayBuffer().then(buffer => {
+                    let blob = new Blob([buffer], {type: 'audio/mp3'});
+                    songURL = window.URL.createObjectURL(blob);
+                    playAudio(songURL);
+                })
             } else {
                 alert('could not play song! does it even exist??');
             }

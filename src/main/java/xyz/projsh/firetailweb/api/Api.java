@@ -1,8 +1,11 @@
 package xyz.projsh.firetailweb.api;
 
 import com.mongodb.client.FindIterable;
+import static com.mongodb.client.model.Filters.eq;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import org.bson.Document;
@@ -61,6 +64,18 @@ public class Api {
     public void updateLoc(@RequestBody String dir) {
         FiretailWeb.musLoc = dir;
         FiretailWeb.doRestart();
+    }
+    
+    @PostMapping("/getFile")
+    public byte[] getFile(@RequestBody String file) throws IOException {
+        FindIterable<Document> songs = Database.songs.find(eq("fileName", file));
+        String dir = "";
+        for (Document song : songs) {
+            System.out.println(file + " || " + song.getString("location"));
+            dir = new File(song.getString("location")).getAbsolutePath();
+            break;
+        }
+        return Files.readAllBytes(Paths.get(dir));
     }
     
 }
