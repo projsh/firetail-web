@@ -63,18 +63,7 @@ let timeFormat = s => {
 playButton.addEventListener("click", () => {
     let sbFix = songInput.selectedOptions[0].textContent.replace(/[\[]/g, "%5B").replace(/[\]]/g, "%5D").replace(/[\(]/g, "%28").replace(/[\)]/g, "%29");
     let song = `http://${hostnamePort}/audio/${sbFix}`;
-    fetch(`http://${hostnamePort}/api/getFileNew`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain'
-            },
-            body: songInput.selectedOptions[0].textContent
-        }).then(resp => {
-            resp.blob().then(resp => {
-                url = window.URL.createObjectURL(resp)
-                playAudio(url)
-            })
-        })
+    playAudio(song);
 });
 
 let seekBar = document.querySelector('#seek');

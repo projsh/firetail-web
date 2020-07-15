@@ -312,7 +312,7 @@ public class MainUI extends javax.swing.JFrame {
             Thread addSongs = new Thread(() -> {
                 File[] files = chooser.getSelectedFiles();
                 for (File file : files) {
-                    Database.addSong(file.getAbsolutePath(), file.getName());
+                    Database.addSong(file);
                 }
                 updateSongList();
                 addSongLabel.setVisible(false);

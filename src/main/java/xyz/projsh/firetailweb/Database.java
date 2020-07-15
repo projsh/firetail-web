@@ -9,7 +9,11 @@ import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.UnsupportedTagException;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bson.Document;
@@ -19,6 +23,8 @@ public class Database {
     public MongoClient mongodb;
     public MongoDatabase db;
     public static MongoCollection<Document> songs;
+    public static MongoCollection<Document> userSettings;
+    public static String dataDir;
     
     private static String[] getMetadata(String fileLoc) {
         String[] songMetadata = new String[3];
@@ -69,6 +75,15 @@ public class Database {
         mongodb = MongoClients.create("mongodb://localhost:27017");
         db = mongodb.getDatabase("firetailweb");
         songs = db.getCollection("songs");
+        userSettings = db.getCollection("settings");
+        try {
+            dataDir = userSettings.find().first().getString("userDir");
+        } catch(NullPointerException err) {
+            new File(String.format("%s/AppData/Roaming/firetail-web/songs", System.getProperty("user.home"))).mkdirs();
+            Document newSettings = new Document("userDir", String.format("%s/AppData/Roaming/firetail-web/songs/", System.getProperty("user.home")));
+            userSettings.insertOne(newSettings);
+            dataDir = userSettings.find().first().getString("userDir");
+        }
     }
     
     public static String getSong(String id) {
@@ -76,13 +91,30 @@ public class Database {
         return song.toJson();
     }
     
-    public static void addSong(String fileLoc, String fileName) {
+    public static void addSong(File file) {
+        String fileLoc = dataDir + "/" + file.getName();
+        try {
+            byte[] fileData = Files.readAllBytes(Paths.get(file.getAbsolutePath()));
+            File newFile = new File(fileLoc);
+            newFile.createNewFile();
+            try {
+                FileOutputStream writeFile = new FileOutputStream(newFile.getAbsolutePath());
+                writeFile.write(fileData);
+                writeFile.close();
+                System.out.println("Wrote file! " + dataDir);
+            } catch(IOException err) {
+                System.out.println("Unable to save file...");
+                err.printStackTrace();
+            }
+        } catch(IOException err) {
+            
+        }
         String[] songMetadata = getMetadata(fileLoc);
         Document newSong = new Document("title", songMetadata[0])
                 .append("artist", songMetadata[1])
                 .append("album", songMetadata[2])
                 .append("location", fileLoc)
-                .append("fileName", fileName);
+                .append("fileName", file.getName());
         songs.insertOne(newSong);
     }
 
