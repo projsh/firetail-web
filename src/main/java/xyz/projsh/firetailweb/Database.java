@@ -79,8 +79,8 @@ public class Database {
         try {
             dataDir = userSettings.find().first().getString("userDir");
         } catch(NullPointerException err) {
-            new File(String.format("%s/AppData/Roaming/firetail-web/songs", System.getProperty("user.home"))).mkdirs();
-            Document newSettings = new Document("userDir", String.format("%s/AppData/Roaming/firetail-web/songs/", System.getProperty("user.home")));
+            new File(String.format("%s/.firetail-web/songs", System.getProperty("user.home"))).mkdirs();
+            Document newSettings = new Document("userDir", String.format("%s/.firetail-web/songs/", System.getProperty("user.home")));
             userSettings.insertOne(newSettings);
             dataDir = userSettings.find().first().getString("userDir");
         }

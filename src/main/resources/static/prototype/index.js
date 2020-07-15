@@ -37,18 +37,13 @@ fetch(`http://${hostnamePort}/api/getfiles`).then(resp => {
 let songURL;
 
 let playAudio = song => {
-    if (audio != undefined) {
-        audio.removeEventListener('timeupdate', timeUpdate);
-        audio.removeEventListener('progress', progress);
-            audio.src = song;
-            audio.play();
-            audio.addEventListener('timeupdate', timeUpdate);
-            return;
-        }
+    if (!audio) {
         audio = new Audio(song);
-        audio.play();
-        audio.addEventListener('timeupdate', timeUpdate);
-        audio.addEventListener('progress', progress);
+    }
+    audio.src = song;
+    audio.addEventListener('progress', progress);
+    audio.addEventListener('timeupdate', timeUpdate);
+    audio.play();
 }
 
 let timeFormat = s => {
@@ -78,7 +73,7 @@ let progress = () => {
     if (duration > 0) {
         for (var i = 0; i < audio.buffered.length; i++) {
             if (audio.buffered.start(audio.buffered.length - 1 - i) < audio.currentTime) {
-                console.log((audio.buffered.end(audio.buffered.length - 1 - i) / duration) * 100 + "%");
+                document.querySelector('.buffer').style.width = (audio.buffered.end(audio.buffered.length - 1 - i) / duration) * 100 + "%";
                 break;
             }
         }
