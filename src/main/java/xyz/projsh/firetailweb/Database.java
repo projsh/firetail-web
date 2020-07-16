@@ -37,7 +37,7 @@ public class Database {
                     songMetadata[1] = tag.getArtist();
                     songMetadata[2] = tag.getAlbum();
                     if (songMetadata[0] == null) {
-                        songMetadata[0] = fileLoc.substring(0, fileLoc.length() - 4);
+                        songMetadata[0] = new File(fileLoc).getName();
                     }
                     if (songMetadata[1] == null) {
                         songMetadata[1] = "Unknown Artist";
@@ -55,10 +55,37 @@ public class Database {
                 }
             } catch (IOException ex) {
                 Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+                if (songMetadata[0] == null) {
+                    songMetadata[0] = new File(fileLoc).getName();
+                }
+                if (songMetadata[1] == null) {
+                    songMetadata[1] = "Unknown Artist";
+                }
+                if (songMetadata[2] == null) {
+                    songMetadata[2] = "Unknown Album";
+                }
             } catch (UnsupportedTagException ex) {
                 Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+                if (songMetadata[0] == null) {
+                    songMetadata[0] = new File(fileLoc).getName();
+                }
+                if (songMetadata[1] == null) {
+                    songMetadata[1] = "Unknown Artist";
+                }
+                if (songMetadata[2] == null) {
+                    songMetadata[2] = "Unknown Album";
+                }
             } catch (InvalidDataException ex) {
                 Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+                if (songMetadata[0] == null) {
+                    songMetadata[0] = new File(fileLoc).getName();
+                }
+                if (songMetadata[1] == null) {
+                    songMetadata[1] = "Unknown Artist";
+                }
+                if (songMetadata[2] == null) {
+                    songMetadata[2] = "Unknown Album";
+                }
             }
         });
         getMetadata.start();

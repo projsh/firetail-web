@@ -46,7 +46,7 @@ public class FiretailWeb {
 	System.setProperty("java.awt.headless", "false");
 	if (!firstLaunch) {
             SwingUtilities.invokeLater(() -> {
-                //new MainUI().setVisible(true);
+                new MainUI().setVisible(true);
             });
         }
     }

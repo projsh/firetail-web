@@ -1,7 +1,10 @@
+let hostnamePort = `${location.hostname}:${location.port}`;
+let audio;
+
 let mainSongList = Vue.extend({
     template:
-    `<div>
-        <li v-for="item in songs" v-bind:song="item" v-bind:key="item.id" class="results-link">
+    `<div class="list-container">
+        <li v-for="item in songs" v-bind:song="item" v-on:dblclick="play(item)" :skey="item.id" :key="item.id" class="results-link">
             <i class="material-icons play-pause" style="opacity: 0;">play_arrow</i>
             <div class="artist-title-album">
                 <p class="list-title">{{ item.title }}</p>
@@ -9,23 +12,30 @@ let mainSongList = Vue.extend({
                 <p class="list-album"><span>{{item.album}}</span></p>
             </div>
         </li>
-    </div>`
-});
-
-let mainSongListComp = new mainSongList({
-    el: ".results-link",
-    data: {
-        songs: [
-            {id: 0, title: "test", artist: "test artist", album: "album test"},
-            {id: 1, title: "test", artist: "test artist", album: "album test"},
-            {id: 2, title: "test", artist: "test artist", album: "album test"},
-            {id: 3, title: "test", artist: "test artist", album: "album test"},
-            {id: 4, title: "test", artist: "test artist", album: "album test"},
-            {id: 5, title: "test", artist: "test artist", album: "album test"},
-            {id: 6, title: "test", artist: "test artist", album: "album test"},
-            {id: 7, title: "test", artist: "test artist", album: "album test"},
-        ]
+    </div>`,
+    methods: {
+        play(song) {
+            if (!audio) {
+                audio = new Audio();
+            }
+            audio.src = `http://${hostnamePort}/audio/${song.fileName}`;
+            audio.play();
+        }
     }
 });
 
-mainSongListComp.$mount('#mount-point')
+let mainSongListComp = new mainSongList({
+    data: {
+        songs: []
+    }
+});
+
+mainSongListComp.$mount('#mount-point');
+
+fetch(`http://${hostnamePort}/api/getAllSongs`).then(resp => {
+    resp.json().then(songs => {
+        songs.forEach((f, i) => {
+            mainSongListComp.songs.push({id: i, title: f.title, artist: f.artist, album: f.album, fileName: f.fileName});
+        })
+    })
+})
