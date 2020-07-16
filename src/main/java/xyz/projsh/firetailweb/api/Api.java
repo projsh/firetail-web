@@ -41,6 +41,16 @@ public class Api {
         return files;
     }
     
+    @GetMapping("/getAllSongs")
+    public Set<AllSongs> getAllSongs() throws IOException {
+        FindIterable<Document> songs = Database.songs.find();
+        Set<AllSongs> files = new HashSet<>();
+        for (Document song : songs) {
+            files.add(new AllSongs(song.getString("title"), song.getString("artist"),song.getString("album"), song.getString("fileName")));
+        }
+        return files;
+    }
+    
     @GetMapping("/restart")
     public void restart() {
         Thread restartThread = new Thread(() -> {

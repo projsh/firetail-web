@@ -1,6 +1,7 @@
 body {
     margin: 0;
     background-color: var(--bg);
+    color: var(--text);
     font-family: 'Inter', 'Overpass', 'Dosis', Arial, Helvetica, sans-serif !important;
     user-select: none;
 }
@@ -14,6 +15,13 @@ html.dark {
     --logo: 0.9;
     --switch: #3d3d3d;
     --hl: #252525;
+}
+
+html.firetail {
+    --hl-txt: #eb6e64;
+    --hl-op: #eb6e641a;
+    --gradient1: #e74e8e;
+    --gradient2: #ef9135;
 }
 
 /* Sidebar */
@@ -32,4 +40,128 @@ html.dark {
     position: fixed;
     background-color: var(--fg-bg);
     margin-left: 182px;
+}
+
+.main-ui {
+    position: fixed;
+    width: calc(100% - 182px);
+    height: calc(100% - 87px);
+    margin: 87px 0 0 182px;
+}
+
+.top-title {
+    padding: 40px;
+}
+
+.top-title h1 {
+    font-size: 42px;
+    margin: 0;
+}
+
+.ft-brand {
+    height: 85px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-right: 10px;
+}
+
+.ft-logo {
+    min-width: 40px;
+    min-height: 40px;
+    background-image: url('/assets/firetail-menu.svg');
+    margin-right: 10px;
+}
+
+.ft-brand span {
+    margin-top: 5px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.tab-container {
+    width: 100%;
+    height: 100%;
+}
+
+.results-link {
+    border-bottom: 1px solid var(--bd);
+    background: var(--bg);
+    overflow: hidden;
+    position: relative;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    transition: .25s;
+    transition-property: margin-left;
+}
+
+li:hover {
+    background: var(--li-hv);
+}
+
+li.nohover:hover {
+    background: none;
+}
+
+.artist-title-album {
+    display: flex;
+    width: calc(100% - 30px);
+    font-size: 14px;
+    align-items: center;
+}
+
+.list-title {
+    margin: 0;
+    margin-left: 14px;
+    width: calc(40% - 40px);
+    padding-right: 40px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 9px 0;
+    pointer-events: none;
+}
+
+.list-artist,
+.list-album {
+    width: 30%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 9px 0;
+    padding-right: 40px;
+    pointer-events: none;
+}
+
+.list-artist span, .list-album span {
+    pointer-events: all;
+}
+
+.list-artist span:hover, .list-album span:hover {
+    color: var(--hl-txt);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.list-artist span:active, .list-album span:active {
+    color: var(--hl-txt);
+    text-decoration: underline;
+    opacity: .8;
+}
+
+.play-pause {
+    font-size: 24px !important;
+    padding: 0;
+    padding-left: 7px;
+    cursor: pointer;
+    opacity: 0;
+}
+
+.play-pause:hover {
+    opacity: .65 !important;
+    color: var(--hl-txt) !important;
+    transform: scale(1.2);
+}
+
+.results-link.active {
+    color: var(--hl-txt);
 }

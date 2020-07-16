@@ -19,6 +19,7 @@ public class FiretailWeb {
     
     private static String[] args;
     private static ConfigurableApplicationContext context;
+    public static boolean firstLaunch = false;
     
     public static void doRestart() {
         try {
@@ -43,9 +44,11 @@ public class FiretailWeb {
 	FiretailWeb.args = args;
         FiretailWeb.context = SpringApplication.run(FiretailWeb.class, args);
 	System.setProperty("java.awt.headless", "false");
-	SwingUtilities.invokeLater(() -> {
-            new MainUI().setVisible(true);
-	});
+	if (!firstLaunch) {
+            SwingUtilities.invokeLater(() -> {
+                //new MainUI().setVisible(true);
+            });
+        }
     }
 
 }
