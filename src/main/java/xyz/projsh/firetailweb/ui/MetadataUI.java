@@ -9,40 +9,49 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
-import xyz.projsh.firetailweb.FiretailWeb;
+import de.odysseus.ithaka.audioinfo.AudioInfo;
+import de.odysseus.ithaka.audioinfo.m4a.M4AInfo;
+import de.odysseus.ithaka.audioinfo.mp3.MP3Info;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 public class MetadataUI extends javax.swing.JFrame {
-
+    
     public MetadataUI(String file, String fileName) {
         initComponents();
         setLocationRelativeTo(null);
         this.setTitle("Metadata for " + file);
+        AudioInfo audioInfo = null;
+        String name = new File(file).getName();
+        int lastIndexOf = name.lastIndexOf(".");
         String[] songMetadata = new String[3];
-        Thread getMetadata = new Thread(() -> {
-            try {
-                Mp3File mp3file = new Mp3File(file);
-                if (mp3file.hasId3v2Tag()) {
-                    ID3v2 tag = mp3file.getId3v2Tag();
-                    songMetadata[0] = tag.getTitle();
-                    songMetadata[1] = tag.getArtist();
-                    songMetadata[2] = tag.getAlbum();
-                    byte[] img = tag.getAlbumImage();
-                    if (img != null) {
-                        ImageIcon icon = new ImageIcon(img);
-                        Image image = icon.getImage();
-                        Image scaledImg = image.getScaledInstance(128, 128, Image.SCALE_SMOOTH);
-                        icon = new ImageIcon(scaledImg);
-                        albumArtLabel.setIcon(icon);
-                        albumArtLabel.setText("");
-                    }
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(MetadataUI.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (UnsupportedTagException ex) {
-                Logger.getLogger(MetadataUI.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InvalidDataException ex) {
-                Logger.getLogger(MetadataUI.class.getName()).log(Level.SEVERE, null, ex);
+        try (InputStream input = new BufferedInputStream(new FileInputStream(file))) {
+            if (name.substring(lastIndexOf).equals(".m4a")) {
+                audioInfo = new M4AInfo(input);
+            } else {
+                audioInfo = new MP3Info(input, file.length());
             }
+            songMetadata[0] = audioInfo.getTitle();
+            songMetadata[1] = audioInfo.getArtist();
+            songMetadata[2] = audioInfo.getAlbum();
+            byte[] img = audioInfo.getCover();
+            if (img != null) {
+                ImageIcon icon = new ImageIcon(img);
+                Image image = icon.getImage();
+                Image scaledImg = image.getScaledInstance(128, 128, Image.SCALE_SMOOTH);
+                icon = new ImageIcon(scaledImg);
+                albumArtLabel.setIcon(icon);
+                albumArtLabel.setText("");
+            }
+        } catch (Exception e) {
+                
+        }
+        System.out.println(audioInfo.getTitle());
+        
+        Thread getMetadata = new Thread(() -> {
+            
         });
         getMetadata.start();
         try {

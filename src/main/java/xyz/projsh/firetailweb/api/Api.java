@@ -46,7 +46,7 @@ public class Api {
         FindIterable<Document> songs = Database.songs.find();
         Set<AllSongs> files = new HashSet<>();
         for (Document song : songs) {
-            files.add(new AllSongs(song.getString("title"), song.getString("artist"),song.getString("album"), song.getString("fileName")));
+            files.add(new AllSongs(song.getString("title"), song.getString("artist"),song.getString("album"), song.getString("fileName"), song.get("_id").toString()));
         }
         return files;
     }

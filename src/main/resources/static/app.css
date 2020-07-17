@@ -126,6 +126,7 @@ li.nohover:hover {
     text-overflow: ellipsis;
     padding: 9px 0;
     pointer-events: none;
+    white-space: nowrap;
 }
 
 .list-artist,
@@ -136,6 +137,7 @@ li.nohover:hover {
     padding: 9px 0;
     padding-right: 40px;
     pointer-events: none;
+    white-space: nowrap;
 }
 
 .list-artist span, .list-album span {
@@ -170,4 +172,36 @@ li.nohover:hover {
 
 .results-link.active {
     color: var(--hl-txt);
+}
+
+.list-section {
+    overflow: hidden;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    top: 0;
+    z-index: 3;
+    background: var(--bg);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: solid 1px var(--bd);
+}
+
+.list-section .list-artist:hover, .list-section .list-album:hover {
+    color: var(--text);
+    text-decoration: none;
+    cursor: default;
+    opacity: 1;
+}
+
+.list-section .list-artist:active, .list-section .list-album:active {
+    color: var(--text);
+    text-decoration: none;
+    opacity: 1;
+}
+
+div.section {
+    font-size: 12px;
+    opacity: .75;
 }

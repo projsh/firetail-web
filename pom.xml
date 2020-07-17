@@ -104,7 +104,13 @@
                     <artifactId>commons-io</artifactId>
                     <version>1.3.2</version>
                 </dependency>
-
+                
+                <dependency>
+                        <groupId>de.odysseus.ithaka</groupId>
+                        <artifactId>ithaka-audioinfo</artifactId>
+                        <version>1.0</version>
+                </dependency>
+                
 	</dependencies>
 
 	<build>
@@ -130,6 +136,10 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+                <repository>
+                        <id>ithaka</id>
+                        <url>http://beckchr.github.com/ithaka-maven/mvnrepo/</url>
+                </repository>
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>

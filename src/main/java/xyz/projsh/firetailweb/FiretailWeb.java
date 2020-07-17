@@ -2,7 +2,6 @@ package xyz.projsh.firetailweb;
 
 import xyz.projsh.firetailweb.ui.MainUI;
 import com.formdev.flatlaf.FlatDarculaLaf;
-import com.mongodb.client.MongoClient;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.logging.Level;
@@ -19,7 +18,6 @@ public class FiretailWeb {
     
     private static String[] args;
     private static ConfigurableApplicationContext context;
-    public static boolean firstLaunch = false;
     
     public static void doRestart() {
         try {
@@ -44,7 +42,16 @@ public class FiretailWeb {
 	FiretailWeb.args = args;
         FiretailWeb.context = SpringApplication.run(FiretailWeb.class, args);
 	System.setProperty("java.awt.headless", "false");
-	if (!firstLaunch) {
+        System.out.println(args.length);
+	if (args.length > 0) {
+            if (args[0].equals("-no-gui")) {
+                
+            } else {
+                SwingUtilities.invokeLater(() -> {
+                    new MainUI().setVisible(true);
+                });
+            }
+        } else {
             SwingUtilities.invokeLater(() -> {
                 new MainUI().setVisible(true);
             });

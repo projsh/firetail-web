@@ -9,13 +9,21 @@ import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.UnsupportedTagException;
+import de.odysseus.ithaka.audioinfo.AudioInfo;
+import de.odysseus.ithaka.audioinfo.m4a.M4AInfo;
+import de.odysseus.ithaka.audioinfo.mp3.MP3Info;
+import java.awt.Image;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import org.bson.Document;
 
 public class Database {
@@ -28,54 +36,30 @@ public class Database {
     
     private static String[] getMetadata(String fileLoc) {
         String[] songMetadata = new String[3];
+        File file = new File(fileLoc);
         Thread getMetadata = new Thread(() -> {
-            try {
-                Mp3File mp3file = new Mp3File(fileLoc);
-                if (mp3file.hasId3v2Tag()) {
-                    ID3v2 tag = mp3file.getId3v2Tag();
-                    songMetadata[0] = tag.getTitle();
-                    songMetadata[1] = tag.getArtist();
-                    songMetadata[2] = tag.getAlbum();
-                    if (songMetadata[0] == null) {
-                        songMetadata[0] = new File(fileLoc).getName();
-                    }
-                    if (songMetadata[1] == null) {
-                        songMetadata[1] = "Unknown Artist";
-                    }
-                    if (songMetadata[2] == null) {
-                        songMetadata[2] = "Unknown Album";
-                    }
-                    /*byte[] img = tag.getAlbumImage();
-                    if (img != null) {
-                        ImageIcon icon = new ImageIcon(img);
-                        Image image = icon.getImage();
-                        Image scaledImg = image.getScaledInstance(128, 128, Image.SCALE_SMOOTH);
-                        icon = new ImageIcon(scaledImg);
-                    }*/
+            String name = file.getName();
+            AudioInfo audioInfo = null;
+            int lastIndexOf = name.lastIndexOf(".");
+            try (InputStream input = new BufferedInputStream(new FileInputStream(file))) {
+                if (name.substring(lastIndexOf).equals(".m4a")) {
+                    audioInfo = new M4AInfo(input);
+                } else {
+                    audioInfo = new MP3Info(input, file.length());
                 }
-            } catch (IOException ex) {
-                Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
-                if (songMetadata[0] == null) {
-                    songMetadata[0] = new File(fileLoc).getName();
-                }
-                if (songMetadata[1] == null) {
-                    songMetadata[1] = "Unknown Artist";
-                }
-                if (songMetadata[2] == null) {
-                    songMetadata[2] = "Unknown Album";
-                }
-            } catch (UnsupportedTagException ex) {
-                Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
-                if (songMetadata[0] == null) {
-                    songMetadata[0] = new File(fileLoc).getName();
-                }
-                if (songMetadata[1] == null) {
-                    songMetadata[1] = "Unknown Artist";
-                }
-                if (songMetadata[2] == null) {
-                    songMetadata[2] = "Unknown Album";
-                }
-            } catch (InvalidDataException ex) {
+                songMetadata[0] = audioInfo.getTitle();
+                songMetadata[1] = audioInfo.getArtist();
+                songMetadata[2] = audioInfo.getAlbum();
+                /*byte[] img = audioInfo.getCover();
+                if (img != null) {
+                    ImageIcon icon = new ImageIcon(img);
+                    Image image = icon.getImage();
+                    Image scaledImg = image.getScaledInstance(128, 128, Image.SCALE_SMOOTH);
+                    icon = new ImageIcon(scaledImg);
+                    albumArtLabel.setIcon(icon);
+                    albumArtLabel.setText("");
+                }*/
+            } catch (Exception ex) {
                 Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
                 if (songMetadata[0] == null) {
                     songMetadata[0] = new File(fileLoc).getName();
