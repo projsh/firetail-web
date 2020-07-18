@@ -26,7 +26,7 @@ html.firetail {
 
 /* Sidebar */
 .sidebar {
-    width: 180px;
+    width: 235px;
     height: 100%;
     border-right: solid 2px var(--bd);
     position: fixed;
@@ -34,19 +34,19 @@ html.firetail {
 }
 
 .np-top {
-    width: calc(100% - 182px);
+    width: calc(100% - 237px);
     height: 85px;
     border-bottom: solid 2px var(--bd);
     position: fixed;
     background-color: var(--fg-bg);
-    margin-left: 182px;
+    margin-left: 237px;
 }
 
 .main-ui {
     position: fixed;
-    width: calc(100% - 182px);
+    width: calc(100% - 237px);
     height: calc(100% - 86px);
-    margin: 87px 0 0 182px;
+    margin: 87px 0 0 237px;
     position: fixed;
     overflow: hidden;
     overflow-y: auto;
@@ -66,8 +66,8 @@ html.firetail {
     height: 85px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding-right: 10px;
+    justify-content: flex-start;
+    padding: 0 25px;
 }
 
 .ft-logo {
@@ -75,6 +75,7 @@ html.firetail {
     min-height: 40px;
     background-image: url('/assets/firetail-menu.svg');
     margin-right: 10px;
+    opacity: var(--logo);
 }
 
 .ft-brand span {
@@ -130,14 +131,20 @@ li.nohover:hover {
 }
 
 .list-artist,
-.list-album {
-    width: 30%;
+.list-album,
+.list-duration {
+    width: calc(30% - 85px);
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 9px 0;
     padding-right: 40px;
     pointer-events: none;
     white-space: nowrap;
+}
+
+.list-duration {
+    width: 85px;
+    text-align: right;
 }
 
 .list-artist span, .list-album span {
@@ -188,14 +195,14 @@ li.nohover:hover {
     border-bottom: solid 1px var(--bd);
 }
 
-.list-section .list-artist:hover, .list-section .list-album:hover {
+.list-section .list-artist:hover, .list-section .list-album:hover, .list-section .list-duration:hover {
     color: var(--text);
     text-decoration: none;
     cursor: default;
     opacity: 1;
 }
 
-.list-section .list-artist:active, .list-section .list-album:active {
+.list-section .list-artist:active, .list-section .list-album:active, .list-section .list-duration:active {
     color: var(--text);
     text-decoration: none;
     opacity: 1;
@@ -204,4 +211,113 @@ li.nohover:hover {
 div.section {
     font-size: 12px;
     opacity: .75;
+}
+
+/* Now Playing */
+.np-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 85px;
+}
+
+.controls-left {
+    width: calc(50% - 260px);
+    height: 100%;
+    height: 100%;
+}
+
+.controls-middle {
+    width: 520px;
+    height: 70px;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+}
+
+.controls-right {
+    width: calc(50% - 260px);
+    height: 100%;
+}
+
+.np-ctrls {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.np-img {
+    min-height: 70px;
+    min-width: 70px;
+    background-image: url('/assets/no_image.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+}
+
+.np-ctrl {
+    width: 100%;
+}
+
+.np-ctrl.metadata {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex-direction: column;
+}
+
+.np-ctrl.seek {
+    position: absolute;
+    height: 4px;
+    width: 450px;
+    bottom: 0;
+    padding: 7px 0;
+}
+
+.seek-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--bd);
+    display: flex;
+    align-items: center;
+}
+
+.fill {
+    height: 4px;
+    background: linear-gradient(to right, var(--gradient1), var(--gradient2));
+    transition: cubic-bezier(0, 1, 0.35, 1) .25s;
+    width: 50%;
+}
+
+.handle {
+    width: 0px;
+    height: 0px;
+    background: var(--gradient2);
+    border-radius: 11111px;
+    margin-left: -5px;
+    transform: scale(1.5);
+    transition: all .1s;
+}
+
+.handle-hover {
+    width: 7px !important;
+    height: 7px !important;
+    transition: all .1s !important;
+}
+
+.np-ctrl.metadata p {
+    margin: 3px 0;
+}
+
+.song-title {
+    font-weight: bold;
+}
+
+.song-artist {
+    opacity: .75;
+    font-size: 12px;
 }

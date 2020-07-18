@@ -2,6 +2,7 @@ package xyz.projsh.firetailweb.ui;
 
 import com.mongodb.client.FindIterable;
 import static com.mongodb.client.model.Filters.eq;
+import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -40,6 +41,8 @@ public class MainUI extends javax.swing.JFrame {
     
     public MainUI() {
         initComponents();
+        addSongLabel.setPreferredSize(new Dimension(170, 19));
+        addSongLabel.setMaximumSize(new Dimension(170, 19));
         addSongLabel.setVisible(false);
         setLocationRelativeTo(null);
         addWindowListener(new WindowAdapter() {
@@ -185,27 +188,30 @@ public class MainUI extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addComponent(addSongLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(0, 195, Short.MAX_VALUE)
                         .addComponent(dropSongsButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(updateListButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(addSongsButton)))
+                        .addComponent(addSongsButton))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(addSongLabel)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
+                .addComponent(addSongLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(addSongsButton)
                     .addComponent(updateListButton)
-                    .addComponent(addSongLabel)
                     .addComponent(dropSongsButton))
                 .addContainerGap())
         );
@@ -312,6 +318,7 @@ public class MainUI extends javax.swing.JFrame {
             Thread addSongs = new Thread(() -> {
                 File[] files = chooser.getSelectedFiles();
                 for (File file : files) {
+                    addSongLabel.setText(String.format("Adding %s to library...", file.getName()));
                     Database.addSong(file);
                 }
                 updateSongList();

@@ -12,6 +12,19 @@ Without this configuration present, some functionality in the IDE may be limited
                 <property name="exec.args">-classpath %classpath xyz.projsh.firetailweb.FiretailWeb -no-gui</property>
                 <property name="exec.executable">C:\Program Files\Java\jdk-12.0.1\bin\java.exe</property>
             </configuration>
+            <configuration id="no-gui-linux" profiles="">
+                <property name="exec.args">-classpath %classpath xyz.projsh.firetailweb.FiretailWeb -no-gui</property>
+                <property name="exec.executable">/usr/lib/jvm/default/bin/java</property>
+            </configuration>
         </configurations>
     </config-data>
+    <properties xmlns="http://www.netbeans.org/ns/maven-properties-data/1">
+        <!--
+Properties that influence various parts of the IDE, especially code formatting and the like. 
+You can copy and paste the single properties, into the pom.xml file and the IDE will pick them up.
+That way multiple projects can share the same settings (useful for formatting rules for example).
+Any value defined here will override the pom.xml file value but is only applicable to the current project.
+-->
+        <netbeans.compile.on.save>all</netbeans.compile.on.save>
+    </properties>
 </project-shared-configuration>

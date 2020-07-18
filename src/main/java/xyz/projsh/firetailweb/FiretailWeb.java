@@ -47,13 +47,17 @@ public class FiretailWeb {
             if (args[0].equals("-no-gui")) {
                 
             } else {
-                SwingUtilities.invokeLater(() -> {
-                    new MainUI().setVisible(true);
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        new MainUI().setVisible(true);
+                    }
                 });
             }
         } else {
-            SwingUtilities.invokeLater(() -> {
-                new MainUI().setVisible(true);
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    new MainUI().setVisible(true);
+                }
             });
         }
     }
