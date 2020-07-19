@@ -122,7 +122,7 @@ public class MainUI extends javax.swing.JFrame {
         setTitle("Firetail Web");
         setMinimumSize(new java.awt.Dimension(350, 250));
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel4.setFont(jLabel4.getFont().deriveFont(jLabel4.getFont().getStyle() | java.awt.Font.BOLD, 24));
         jLabel4.setText("Server is active!");
 
         jLabel5.setText("No settings are available quite yet...");
@@ -218,7 +218,7 @@ public class MainUI extends javax.swing.JFrame {
 
         mainTabPane.addTab("Songs", jPanel2);
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
+        jLabel1.setFont(jLabel1.getFont().deriveFont(jLabel1.getFont().getStyle() | java.awt.Font.BOLD, 36));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("<html><center>Firetail Web (beta)</center></html>");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
