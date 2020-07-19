@@ -19,15 +19,25 @@
         </div>
         <div class="np-top">
             <div class="np-container">
-                <div class="controls-left"></div>
+                <div class="controls-left">
+                    <div class="media-controls">
+                        <i class="material-icons-outlined small-icon">shuffle</i>
+                        <i v-on:click="prev" class="material-icons-outlined">skip_previous</i>
+                        <i v-on:click="playPause" class="material-icons-outlined">{{ playPauseIcon }}</i>
+                        <i v-on:click="skip" class="material-icons-outlined">skip_next</i>
+                        <i class="material-icons-outlined small-icon">repeat</i>
+                    </div>
+                </div>
                 <div class="controls-middle">
-                    <div class="np-img"></div>
+                    <div v-bind:style="bg" class="np-img"></div>
                     <div class="np-ctrls">
                         <div class="np-ctrl metadata">
-                            <p class="song-title">Song Title</p>
-                            <p class="song-artist">Song Artist</p>
+                            <p class="song-title">{{title}}</p>
+                            <p class="song-artist">{{artist}}</p>
                         </div>
-                        <seek-bar></seek-bar>
+                        <div class="seek-container">
+                            <seek-bar></seek-bar>
+                        </div>
                     </div>
                 </div>
                 <div class="controls-right"></div>

@@ -1,6 +1,17 @@
 let hostnamePort = `${location.hostname}:${location.port}`;
 let audio;
 let currentlyPlaying = false;
+let currentIndex = 0;
+
+let titleArtist = new Vue({
+    el: '.np-ctrl.metadata',
+    data() {
+        return {
+            title: 'No song playing',
+            artist: ''
+        }
+    }
+})
 
 let mainSongList = Vue.extend({
     template:
@@ -14,7 +25,7 @@ let mainSongList = Vue.extend({
             <p class="list-duration">Duration</p>
         </div>
         </div>
-        <li v-for="item in songs" v-bind:song="item" v-on:dblclick="play(item)" :skey="item.id" :key="item.id" class="results-link">
+        <li v-for="item in songs" v-bind:song="item" v-on:mouseover="hover($event)" v-on:mouseleave="leave($event)" v-on:dblclick="play(item)" :skey="item.id" :key="item.id" class="results-link">
             <i class="material-icons-outlined play-pause" style="opacity: 0;">play_arrow</i>
             <div class="artist-title-album">
                 <p class="list-title">{{ item.title }}</p>
@@ -31,9 +42,57 @@ let mainSongList = Vue.extend({
             }
             audio.removeEventListener('timeupdate', timeUpdate);
             audio.src = `http://${hostnamePort}/audio/${song.fileName}`;
+            document.querySelector('.fill').style.width = '0%';
             audio.play();
+            audio.addEventListener('pause', () => {
+                mediaControls.playPauseIcon = 'play_arrow';
+            });
+            audio.addEventListener('play', () => {
+                mediaControls.playPauseIcon = 'pause';
+            });
+            audio.addEventListener('ended', () => {
+                audio.pause();
+                mediaControls.skip();
+            })
+            currentIndex = mainSongListComp.songs.indexOf(song);
+            this.updateActive();
+            mediaControls.playPauseIcon = 'pause'
+            titleArtist.title = song.title;
+            titleArtist.artist = song.artist;
+            let imgURL = `http://${hostnamePort}/img/${song.artist}${song.album}.jpg`;
+            fetch(imgURL).then(response => {
+                if (response.ok) {
+                    updateImg.updateBg(imgURL)
+                } else {
+                    updateImg.updateBg();
+                }
+            })
             currentlyPlaying = true;
             audio.addEventListener('timeupdate', timeUpdate);
+        },
+        updateActive() {
+            let all = document.querySelectorAll('.results-link');
+            all.forEach(f => {
+                f.classList.remove('active');
+                f.children[0].textContent = 'play_arrow';
+                f.children[0].style.opacity = 0;
+            });
+            let icon = all[currentIndex].children[0]
+            all[currentIndex].classList.add('active');
+            icon.textContent = 'volume_up';
+            icon.style.opacity = 1;
+        },
+        hover(evt) {
+            if (evt.target.children[0]) {
+                let icon = evt.target.children[0];
+                icon.style.opacity = 1;
+            }
+        },
+        leave(evt) {
+            let icon = evt.target.children[0];
+            if (icon.textContent != 'volume_up') {
+                icon.style.opacity = 0;
+            }
         }
     }
 });
@@ -62,9 +121,9 @@ fetch(`http://${hostnamePort}/api/getAllSongs`).then(resp => {
     resp.json().then(songs => {
         songs.forEach((f, i) => {
             if (f.title == null || f.artist == null || f.album == null || f.title == "" || f.artist == "" || f.album == "") {
-                mainSongListComp.songs.push({id: i, title: f.fileName, artist: "Unknown Artist", album: "Unknown Album", fileName: f.fileName, dur: f.duration});
+                mainSongListComp.songs.push({id: f.id, title: f.fileName, artist: "Unknown Artist", album: "Unknown Album", fileName: f.fileName, dur: f.duration});
             } else {
-                mainSongListComp.songs.push({id: i, title: f.title, artist: f.artist, album: f.album, fileName: f.fileName, dur: f.duration});
+                mainSongListComp.songs.push({id: f.id, title: f.title, artist: f.artist, album: f.album, fileName: f.fileName, dur: f.duration});
             }
             sortArray(mainSongListComp.songs, 'artist')
         })
@@ -73,7 +132,7 @@ fetch(`http://${hostnamePort}/api/getAllSongs`).then(resp => {
 
 Vue.component('seek-bar', {
     template:
-    `<div id="seekWrapper" v-on:mousedown="down" v-on:mouseover="hover" v-on:mouseleave="leave" class="np-ctrl seek">
+    `<div id="seekWrapper" v-on:mousedown="down" v-on:touchstart="down" v-on:mouseover="hover" v-on:mouseleave="leave" class="np-ctrl seek">
         <div class="seek-bar">
             <div class="fill"></div>
             <div class="handle"></div>
@@ -94,7 +153,7 @@ Vue.component('seek-bar', {
 });
 
 new Vue({
-    el: '.np-ctrls'
+    el: '.seek-container'
 })
 
 let seekBar;
@@ -107,17 +166,17 @@ setTimeout(() => {
 }, 50)
 let seekMouseDown = false;
 
-function clamp(min, val, max) {
+let clamp = (min, val, max) => {
     return Math.min(Math.max(min, val), max);
 }
 
-function getP(e, el) {
+let getP = (e, el) => {
     pBar = (e.clientX - el.getBoundingClientRect().x) / el.clientWidth;
     pBar = clamp(0, pBar, 1);
     return pBar;
 }
 
-function mousetouchdown(e) {
+let mousetouchdown = e => {
     if (currentlyPlaying) {
         if (e.touches) {
             e = e.touches[0]
@@ -130,59 +189,123 @@ function mousetouchdown(e) {
     }
 }
 
-function mousetouchmove(e) {
+let mousetouchmove = e => {
     if (!seekMouseDown) return;
-    if (currentlyPlaying) {
-        if (seekMouseDown) {
-            seekFillBar.style.transition = 'none';
-            if (e.touches) {
-                e = e.touches[0]
-            }
-            pBar = getP(e, seekBar);
-            seekFillBar.style.width = pBar * 100 + '%';
-            minutes = Math.floor((pBar * audio.duration) / 60);
-            seconds = Math.floor((pBar * audio.duration) / 1);
-            while (seconds >= 60) {
-                seconds = seconds - 60;
-            }
-            if (seconds > -1 && seconds < 10) {
-                seconds = ('0' + seconds).slice(-2);
-            }
-            //document.querySelector('#songDurationTime').innerHTML = `${minutes}:${seconds}`
+    if (currentlyPlaying && seekMouseDown) {
+        seekFillBar.style.transition = 'none';
+        if (e.touches) {
+            e = e.touches[0]
         }
+        pBar = getP(e, seekBar);
+        seekFillBar.style.width = pBar * 100 + '%';
+        minutes = Math.floor((pBar * audio.duration) / 60);
+        seconds = Math.floor((pBar * audio.duration) / 1);
+        while (seconds >= 60) {
+            seconds = seconds - 60;
+        }
+        if (seconds > -1 && seconds < 10) {
+            seconds = ('0' + seconds).slice(-2);
+        }
+        //document.querySelector('#songDurationTime').innerHTML = `${minutes}:${seconds}`
     }
 }
 
-function mousetouchup(e) {
+let mousetouchup = e => {
     seekFillBar.style.removeProperty('transition');
     if (!seekMouseDown) return;
     if (currentlyPlaying) {
-        if (seekMouseDown) {
-            if (e.changedTouches) {
-                e = e.changedTouches[0]
-            }
-            seekMouseDown = false;
-            pBar = getP(e, seekBar);
-            seekFillBar.style.width = pBar * 100 + '%';
-            audio.currentTime = pBar * audio.duration;
-            audio.addEventListener('timeupdate', timeUpdate);
-            document.querySelector('.handle').classList.remove('handle-hover')
+        if (e.changedTouches) {
+            e = e.changedTouches[0]
         }
+        seekMouseDown = false;
+        pBar = getP(e, seekBar);
+        seekFillBar.style.width = pBar * 100 + '%';
+        audio.currentTime = pBar * audio.duration;
+        audio.addEventListener('timeupdate', timeUpdate);
+        document.querySelector('.handle').classList.remove('handle-hover')
     }
 }
 
-window.addEventListener('mousemove', function (e) {
+
+window.addEventListener('mousemove', e => {
     mousetouchmove(e)
 });
 
-window.addEventListener('touchmove', function (e) {
+window.addEventListener('touchmove', e => {
     mousetouchmove(e)
 });
 
-window.addEventListener('mouseup', function (e) {
+window.addEventListener('mouseup', e => {
     mousetouchup(e);
 });
 
-window.addEventListener('touchend', function (e) {
+window.addEventListener('touchend', e => {
     mousetouchup(e);
 });
+
+let updateImg = new Vue({
+    el: '.np-img',
+    data() {
+        return {
+            bg: '/assets/no_image.svg'
+        }
+    },
+    methods: {
+        updateBg(url) {
+            if (url) {
+                this.bg = `background-image: url('${url}')`;
+            } else {
+                this.bg = `background-image: url('/assets/no_image.svg')`
+            }
+        }
+    }
+});
+
+let updateMode = scheme => {
+    let thing = document.querySelector('html').classList;
+    if (scheme == 'dark') {
+        thing.remove('light')
+        thing.add('dark');
+    } else {
+        thing.remove('dark');
+        thing.add('light');
+    }
+}
+
+try {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        updateMode('dark');
+    } else {
+        updateMode('light');
+    }
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        updateMode(e.matches ? 'dark' : 'light');
+    })
+} catch(err) {}
+
+let mediaControls = new Vue({
+    el: '.media-controls',
+    data() {
+        return {
+            playPauseIcon: 'play_arrow'
+        }
+    },
+    methods: {
+        playPause() {
+            if (audio) {
+                if (audio.paused) {
+                    audio.play();
+                } else {
+                    audio.pause();
+                }
+            }
+        },
+        skip() {
+            mainSongListComp.play(mainSongListComp.songs[currentIndex + 1]);
+        },
+        prev() {
+            mainSongListComp.play(mainSongListComp.songs[currentIndex - 1]);
+        }
+    }
+})

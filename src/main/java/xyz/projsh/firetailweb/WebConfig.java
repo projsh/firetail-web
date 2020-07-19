@@ -19,13 +19,18 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String musicLoc = "";
+        String imgLoc = "";
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
             musicLoc = String.format("file:\\%s", Database.dataDir);
+            imgLoc = String.format("file:\\%s", Database.imgDir);
         } else {
             musicLoc = String.format("file:%s", Database.dataDir);
+            imgLoc = String.format("file:%s/", Database.imgDir);
         }
         System.out.println(musicLoc);
+        System.out.println(imgLoc);
         registry.addResourceHandler("/audio/**").addResourceLocations(musicLoc);
+        registry.addResourceHandler("/img/**").addResourceLocations(imgLoc);
         registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
     }
     
