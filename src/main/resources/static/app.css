@@ -10,11 +10,23 @@ html.dark {
     --bg: #181818;
     --text: #dfdfdf;
     --fg-bg: #1e1e1e;
+    --fg-bg-op: #25252584;
     --bd: #3a3a3a;
     --li-hv: #212121;
     --logo: 0.9;
     --switch: #3d3d3d;
     --hl: #252525;
+}
+
+html.light {
+    --bg: #e9e9e9;
+    --text: #3d3d3d;
+    --fg-bg: #ffffff;
+    --fg-bg-op: #ffffff84;
+    --bd: #b4b4b4;
+    --li-hv: #dddddd;
+    --logo: 0.25;
+    --switch: #cccccc;
 }
 
 html.firetail {
@@ -31,6 +43,8 @@ html.firetail {
     border-right: solid 2px var(--bd);
     position: fixed;
     background-color: var(--fg-bg);
+    z-index: 2;
+    box-shadow: 1px 0px 5px rgba(0, 0, 0, .15);
 }
 
 .np-top {
@@ -38,19 +52,19 @@ html.firetail {
     height: 85px;
     border-bottom: solid 2px var(--bd);
     position: fixed;
-    background-color: var(--fg-bg);
+    background-color: var(--fg-bg-op);
+    -webkit-backdrop-filter: saturate(50%) blur(20px);
+    backdrop-filter: saturate(50%) blur(20px);
     margin-left: 237px;
+    z-index: 2;
+    box-shadow: 0px 1px 5px rgba(0, 0, 0, .15);
 }
 
 .main-ui {
-    position: fixed;
+    position: relative;
     width: calc(100% - 237px);
     height: calc(100% - 86px);
-    margin: 87px 0 0 237px;
-    position: fixed;
-    overflow: hidden;
-    overflow-y: auto;
-    height: calc(100% - 87px);
+    padding: 87px 0 0 237px;
 }
 
 .top-title {
@@ -75,7 +89,7 @@ html.firetail {
     min-height: 40px;
     background-image: url('/assets/firetail-menu.svg');
     margin-right: 10px;
-    opacity: var(--logo);
+    filter: brightness(var(--logo));
 }
 
 .ft-brand span {
@@ -116,6 +130,7 @@ li.nohover:hover {
     width: calc(100% - 30px);
     font-size: 14px;
     align-items: center;
+    pointer-events: none;
 }
 
 .list-title {
@@ -222,12 +237,6 @@ div.section {
     height: 85px;
 }
 
-.controls-left {
-    width: calc(50% - 260px);
-    height: 100%;
-    height: 100%;
-}
-
 .controls-middle {
     width: 520px;
     height: 70px;
@@ -255,6 +264,7 @@ div.section {
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
+    transition: 0.2s;
 }
 
 .np-ctrl {
@@ -311,6 +321,10 @@ div.section {
 
 .np-ctrl.metadata p {
     margin: 3px 0;
+    max-width: 400px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .song-title {
@@ -320,4 +334,35 @@ div.section {
 .song-artist {
     opacity: .75;
     font-size: 12px;
+}
+
+.controls-left {
+    width: calc(50% - 260px);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-controls {
+    display: flex;
+    align-items: center;
+}
+
+.media-controls i {
+    font-size: 36px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.media-controls i.small-icon {
+    font-size: 22px;
+}
+
+.media-controls i:hover {
+    opacity: .65;
+}
+
+.media-controls i:active {
+    opacity: .35;
 }
