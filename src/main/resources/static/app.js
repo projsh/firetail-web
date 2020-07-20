@@ -13,6 +13,36 @@ let titleArtist = new Vue({
     }
 })
 
+let mediaControls = new Vue({
+    el: '.media-controls',
+    data() {
+        return {
+            playPauseIcon: 'play_arrow'
+        }
+    },
+    methods: {
+        playPause() {
+            if (audio) {
+                if (audio.paused) {
+                    audio.play();
+                } else {
+                    audio.pause();
+                }
+            }
+        },
+        skip() {
+            mainSongListComp.play(mainSongListComp.songs[currentIndex + 1]);
+        },
+        prev() {
+            if (audio.currentTime < 3) {
+                mainSongListComp.play(mainSongListComp.songs[currentIndex - 1]);
+            } else {
+                audio.currentTime = 0;
+            }
+        }
+    }
+})
+
 let mainSongList = Vue.extend({
     template:
     `<div class="list-container">
@@ -43,32 +73,33 @@ let mainSongList = Vue.extend({
             audio.removeEventListener('timeupdate', timeUpdate);
             audio.src = `http://${hostnamePort}/audio/${song.fileName}`;
             document.querySelector('.fill').style.width = '0%';
-            audio.play();
-            audio.addEventListener('pause', () => {
-                mediaControls.playPauseIcon = 'play_arrow';
-            });
-            audio.addEventListener('play', () => {
-                mediaControls.playPauseIcon = 'pause';
-            });
-            audio.addEventListener('ended', () => {
-                audio.pause();
-                mediaControls.skip();
+            audio.play().then(() => {
+                updateMediaSession(song);
+                audio.addEventListener('pause', () => {
+                    mediaControls.playPauseIcon = 'play_arrow';
+                });
+                audio.addEventListener('play', () => {
+                    mediaControls.playPauseIcon = 'pause';
+                });
+                audio.addEventListener('ended', () => {
+                    mediaControls.skip();
+                })
+                currentIndex = mainSongListComp.songs.indexOf(song);
+                this.updateActive();
+                mediaControls.playPauseIcon = 'pause'
+                titleArtist.title = song.title;
+                titleArtist.artist = song.artist;
+                let imgURL = `http://${hostnamePort}/img/${song.artist}${song.album}.jpg`;
+                fetch(imgURL).then(response => {
+                    if (response.ok) {
+                        updateImg.updateBg(imgURL)
+                    } else {
+                        updateImg.updateBg();
+                    }
+                })
+                currentlyPlaying = true;
+                audio.addEventListener('timeupdate', timeUpdate);
             })
-            currentIndex = mainSongListComp.songs.indexOf(song);
-            this.updateActive();
-            mediaControls.playPauseIcon = 'pause'
-            titleArtist.title = song.title;
-            titleArtist.artist = song.artist;
-            let imgURL = `http://${hostnamePort}/img/${song.artist}${song.album}.jpg`;
-            fetch(imgURL).then(response => {
-                if (response.ok) {
-                    updateImg.updateBg(imgURL)
-                } else {
-                    updateImg.updateBg();
-                }
-            })
-            currentlyPlaying = true;
-            audio.addEventListener('timeupdate', timeUpdate);
         },
         updateActive() {
             let all = document.querySelectorAll('.results-link');
@@ -96,6 +127,30 @@ let mainSongList = Vue.extend({
         }
     }
 });
+
+let updateMediaSession = (song) => {
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: song.title,
+            artist: song.artist,
+            album: song.album,
+            artwork: [{src: `http://${hostnamePort}/img/${song.artist}${song.album}.jpg`, sizes: '512x512', type: 'image/jpeg'}]
+        })
+        if ('setPositionState' in navigator.mediaSession) {
+            navigator.mediaSession.setPositionState({
+                duration: audio.duration,
+                playbackRate: audio.playbackRate,
+                position: audio.currentTime
+            });
+        }
+    }
+
+}
+
+if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('previoustrack', mediaControls.prev);
+    navigator.mediaSession.setActionHandler('nexttrack', mediaControls.skip);
+}
 
 let timeUpdate = () => {
     document.querySelector('.fill').style.width = (audio.currentTime / audio.duration) * 100 + '%';
@@ -283,29 +338,3 @@ try {
         updateMode(e.matches ? 'dark' : 'light');
     })
 } catch(err) {}
-
-let mediaControls = new Vue({
-    el: '.media-controls',
-    data() {
-        return {
-            playPauseIcon: 'play_arrow'
-        }
-    },
-    methods: {
-        playPause() {
-            if (audio) {
-                if (audio.paused) {
-                    audio.play();
-                } else {
-                    audio.pause();
-                }
-            }
-        },
-        skip() {
-            mainSongListComp.play(mainSongListComp.songs[currentIndex + 1]);
-        },
-        prev() {
-            mainSongListComp.play(mainSongListComp.songs[currentIndex - 1]);
-        }
-    }
-})

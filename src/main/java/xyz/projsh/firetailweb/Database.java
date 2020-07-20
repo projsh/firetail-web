@@ -46,6 +46,7 @@ public class Database {
                     .append("imgDir", imgFile.getAbsolutePath());
             userSettings.insertOne(newSettings);
             dataDir = userSettings.find().first().getString("userDir");
+            imgDir = userSettings.find().first().getString("imgDir");
         }
     }
     

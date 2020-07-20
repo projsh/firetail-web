@@ -22,7 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
         String imgLoc = "";
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
             musicLoc = String.format("file:\\%s", Database.dataDir);
-            imgLoc = String.format("file:\\%s", Database.imgDir);
+            imgLoc = String.format("file:\\%s\\", Database.imgDir);
         } else {
             musicLoc = String.format("file:%s", Database.dataDir);
             imgLoc = String.format("file:%s/", Database.imgDir);
