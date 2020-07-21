@@ -366,3 +366,49 @@ div.section {
 .media-controls i:active {
     opacity: .35;
 }
+
+/* Sidebar */
+.sidebar-wrap {
+    width: 100%;
+}
+
+.side-item {
+    width: 100%;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.side-item i {
+    margin: 0 20px;
+}
+
+.side-item span {
+
+}
+
+.side-label {
+    margin: 25px 20px 10px 20px;
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: .75;
+}
+
+.active-indicator {
+    height: 45px;
+    width: 3px;
+    background: var(--hl-txt);
+    border-radius: 0px 10px 10px 0px;
+    position: absolute;
+    transition: .25s;
+}
+
+.side-item:hover {
+    opacity: .65;
+}
+
+.side-item:active {
+    opacity: .35;
+}

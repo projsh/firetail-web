@@ -338,3 +338,19 @@ try {
         updateMode(e.matches ? 'dark' : 'light');
     })
 } catch(err) {}
+
+//sidebar
+
+Vue.component('sidebar', {
+    template: 
+    `<div class="sidebar-wrap">
+        <div class="active-indicator"></div>
+        <div v-for="item in sidebar" v-bind:sideitem="item" v-bind:id="item.id">
+            <div v-if="item.type == 'item'" class="side-item">
+                <i class="material-icons-outlined">{{ item.icon }}</div>
+                <span>{{ item.label }}</span>
+            </div>
+            <div v-else class="side-label">{{item.label}}</div>
+        </div>
+    </div>`
+})
