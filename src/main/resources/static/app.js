@@ -73,6 +73,7 @@ let mainSongList = Vue.extend({
             audio.removeEventListener('timeupdate', timeUpdate);
             audio.src = `http://${hostnamePort}/audio/${song.fileName}`;
             document.querySelector('.fill').style.width = '0%';
+            audio.load();
             audio.play().then(() => {
                 updateMediaSession(song);
                 audio.addEventListener('pause', () => {
@@ -83,6 +84,7 @@ let mainSongList = Vue.extend({
                 });
                 audio.addEventListener('ended', () => {
                     mediaControls.skip();
+                    console.log('end')
                 })
                 currentIndex = mainSongListComp.songs.indexOf(song);
                 this.updateActive();
@@ -330,8 +332,10 @@ let updateMode = scheme => {
 try {
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         updateMode('dark');
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        updateMode('dark');
     } else {
-        updateMode('light');
+        updateMode('dark');
     }
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
@@ -341,16 +345,31 @@ try {
 
 //sidebar
 
-Vue.component('sidebar', {
+let sidebar = new Vue({
+    el: '.temp-sidebar',
     template: 
     `<div class="sidebar-wrap">
         <div class="active-indicator"></div>
-        <div v-for="item in sidebar" v-bind:sideitem="item" v-bind:id="item.id">
+        <div v-for="item in sidebarItems" v-bind:sideitem="item" v-bind:id="item.id">
             <div v-if="item.type == 'item'" class="side-item">
-                <i class="material-icons-outlined">{{ item.icon }}</div>
+                <i class="material-icons-outlined">{{ item.icon }}</i>
                 <span>{{ item.label }}</span>
             </div>
             <div v-else class="side-label">{{item.label}}</div>
         </div>
-    </div>`
-})
+    </div>`,
+    data() {
+        return {
+            sidebarItems: [
+                {id: 0, type: 'item', label: 'Home', icon: 'home'},
+                {id: 1, type: 'item', label: 'Settings', icon: 'settings'},
+                {id: 2, type: 'label', label: 'Library'},
+                {id: 3, type: 'item', label: 'Liked Songs', icon: 'favorite_border'},
+                {id: 4, type: 'item', label: 'All Songs', icon: 'music_note'},
+                {id: 5, type: 'item', label: 'Artists', icon: 'person'},
+                {id: 6, type: 'item', label: 'Albums', icon: 'album'},
+                {id: 7, type: 'item', label: 'Playlists', icon: 'playlist_play'}
+            ]
+        }
+    }
+});

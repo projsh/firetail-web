@@ -16,6 +16,10 @@ Without this configuration present, some functionality in the IDE may be limited
                 <property name="exec.args">-classpath %classpath xyz.projsh.firetailweb.FiretailWeb -no-gui</property>
                 <property name="exec.executable">/usr/lib/jvm/default/bin/java</property>
             </configuration>
+            <configuration id="no-gui-macos" profiles="">
+                <property name="exec.args">-classpath %classpath xyz.projsh.firetailweb.FiretailWeb -no-gui</property>
+                <property name="exec.executable">/Library/Java/JavaVirtualMachines/openjdk.jdk/Contents/Home/bin/java</property>
+            </configuration>
         </configurations>
     </config-data>
     <properties xmlns="http://www.netbeans.org/ns/maven-properties-data/1">
