@@ -71,6 +71,9 @@ let mainSongList = Vue.extend({
                 audio = new Audio();
             }
             audio.removeEventListener('timeupdate', timeUpdate);
+            audio.removeEventListener('pause', pauseEvent);
+            audio.removeEventListener('play', playEvent);
+            audio.removeEventListener('ended', endedEvent);
             audio.src = `http://${hostnamePort}/audio/${song.fileName}`;
             document.querySelector('.fill').style.width = '0%';
             //audio.load();
@@ -89,17 +92,9 @@ let mainSongList = Vue.extend({
             })
             audio.play().then(() => {
                 updateMediaSession(song);
-                audio.addEventListener('pause', () => {
-                    mediaControls.playPauseIcon = 'play_arrow';
-                });
-                audio.addEventListener('play', () => {
-                    mediaControls.playPauseIcon = 'pause';
-                });
-                audio.addEventListener('ended', () => {
-                    mediaControls.skip();
-                    console.log('end')
-                })
-                
+                audio.addEventListener('pause', pauseEvent);
+                audio.addEventListener('play', playEvent);
+                audio.addEventListener('ended', endedEvent)
                 currentlyPlaying = true;
                 audio.addEventListener('timeupdate', timeUpdate);
             })
@@ -130,6 +125,19 @@ let mainSongList = Vue.extend({
         }
     }
 });
+
+let pauseEvent = () => {
+    mediaControls.playPauseIcon = 'play_arrow';
+}
+
+let playEvent = () => {
+    mediaControls.playPauseIcon = 'pause';
+}
+
+let endedEvent = () => {
+    mediaControls.skip();
+    console.log('end')
+}
 
 let updateMediaSession = (song) => {
     if ('mediaSession' in navigator) {
@@ -352,7 +360,7 @@ let sidebar = new Vue({
     el: '.temp-sidebar',
     template: 
     `<div class="sidebar-wrap">
-        <div class="active-indicator"></div>
+        <div class="active-indicator" style="top: 85px"></div>
         <div v-for="item in sidebarItems" v-bind:sideitem="item" v-bind:id="item.id">
             <div v-on:load="active($event)" :style="active" v-on:click="click($event)" v-if="item.type == 'item'" class="side-item side-click">
                 <i class="material-icons-outlined">{{ item.icon }}</i>

@@ -419,7 +419,7 @@ div.section {
     border-radius: 0px 10px 10px 0px;
     position: absolute;
     transition: cubic-bezier(0, 1, 0.35, 1) .25s;
-    top: auto;
+    top: 85px;
 }
 
 .side-item:hover, .side-list-item:hover {
