@@ -44,7 +44,7 @@ html.firetail {
     height: 100%;
     border-right: solid 2px var(--bd);
     position: fixed;
-    background-color: var(--fg-bg);
+    background-color: var(--fg-bg-op);
     z-index: 2;
     box-shadow: 1px 0px 5px rgba(0, 0, 0, .15);
 }
@@ -391,12 +391,18 @@ div.section {
     cursor: pointer;
 }
 
+.side-item.active {
+    color: var(--hl-txt);
+    font-weight: bold;
+}
+
 .side-item i {
     margin: 0 20px;
+    pointer-events: none;
 }
 
 .side-item span {
-
+    pointer-events: none;
 }
 
 .side-label {
@@ -412,13 +418,26 @@ div.section {
     background: var(--hl-txt);
     border-radius: 0px 10px 10px 0px;
     position: absolute;
-    transition: .25s;
+    transition: cubic-bezier(0, 1, 0.35, 1) .25s;
+    top: auto;
 }
 
-.side-item:hover {
+.side-item:hover, .side-list-item:hover {
     opacity: .65;
 }
 
-.side-item:active {
+.side-item:active, .side-list-item:active {
     opacity: .35;
+}
+
+.side-list-item {
+    padding-left: 20px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.side-list-item div {
+    pointer-events: none;
 }

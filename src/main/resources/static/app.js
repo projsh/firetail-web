@@ -73,7 +73,20 @@ let mainSongList = Vue.extend({
             audio.removeEventListener('timeupdate', timeUpdate);
             audio.src = `http://${hostnamePort}/audio/${song.fileName}`;
             document.querySelector('.fill').style.width = '0%';
-            audio.load();
+            //audio.load();
+            currentIndex = mainSongListComp.songs.indexOf(song);
+            this.updateActive();
+            mediaControls.playPauseIcon = 'pause'
+            titleArtist.title = song.title;
+            titleArtist.artist = song.artist;
+            let imgURL = `http://${hostnamePort}/img/${song.artist}${song.album}.jpg`;
+            fetch(imgURL).then(response => {
+                if (response.ok) {
+                    updateImg.updateBg(imgURL)
+                } else {
+                    updateImg.updateBg();
+                }
+            })
             audio.play().then(() => {
                 updateMediaSession(song);
                 audio.addEventListener('pause', () => {
@@ -86,19 +99,7 @@ let mainSongList = Vue.extend({
                     mediaControls.skip();
                     console.log('end')
                 })
-                currentIndex = mainSongListComp.songs.indexOf(song);
-                this.updateActive();
-                mediaControls.playPauseIcon = 'pause'
-                titleArtist.title = song.title;
-                titleArtist.artist = song.artist;
-                let imgURL = `http://${hostnamePort}/img/${song.artist}${song.album}.jpg`;
-                fetch(imgURL).then(response => {
-                    if (response.ok) {
-                        updateImg.updateBg(imgURL)
-                    } else {
-                        updateImg.updateBg();
-                    }
-                })
+                
                 currentlyPlaying = true;
                 audio.addEventListener('timeupdate', timeUpdate);
             })
@@ -345,31 +346,53 @@ try {
 
 //sidebar
 
+let currentActiveTab = 'allButton'
+
 let sidebar = new Vue({
     el: '.temp-sidebar',
     template: 
     `<div class="sidebar-wrap">
         <div class="active-indicator"></div>
         <div v-for="item in sidebarItems" v-bind:sideitem="item" v-bind:id="item.id">
-            <div v-if="item.type == 'item'" class="side-item">
+            <div v-on:load="active($event)" :style="active" v-on:click="click($event)" v-if="item.type == 'item'" class="side-item side-click">
                 <i class="material-icons-outlined">{{ item.icon }}</i>
                 <span>{{ item.label }}</span>
             </div>
-            <div v-else class="side-label">{{item.label}}</div>
+            <div v-else-if="item.type == 'label'" class="side-label">{{item.label}}</div>
+            <div v-else class="side-list-item side-click" v-on:click="click($event)" v-for="listItem in item.items" v-bind:listItems="listItem" v-bind:id="listItem.id">
+                <div>{{listItem.label}}</div>
+            </div>
         </div>
     </div>`,
     data() {
         return {
             sidebarItems: [
-                {id: 0, type: 'item', label: 'Home', icon: 'home'},
-                {id: 1, type: 'item', label: 'Settings', icon: 'settings'},
-                {id: 2, type: 'label', label: 'Library'},
-                {id: 3, type: 'item', label: 'Liked Songs', icon: 'favorite_border'},
-                {id: 4, type: 'item', label: 'All Songs', icon: 'music_note'},
-                {id: 5, type: 'item', label: 'Artists', icon: 'person'},
-                {id: 6, type: 'item', label: 'Albums', icon: 'album'},
-                {id: 7, type: 'item', label: 'Playlists', icon: 'playlist_play'}
+                {id: 'homeButton', type: 'item', label: 'Home', icon: 'home'},
+                {id: 'settingsButton', type: 'item', label: 'Settings', icon: 'settings'},
+                {id: 'libraryLabel', type: 'label', label: 'Library'},
+                {id: 'likedButton', type: 'item', label: 'Liked Songs', icon: 'favorite_border'},
+                {id: 'allButton', type: 'item', label: 'All Songs', icon: 'music_note'},
+                {id: 'artistsButton', type: 'item', label: 'Artists', icon: 'person'},
+                {id: 'albumsButton', type: 'item', label: 'Albums', icon: 'album'},
+                {id: 'playlistLabel', type: 'label', label: 'Playlists'},
+                {id: 'playlistsList', type: 'list', items: [{id: 'test', label: 'test label'}]}
             ]
+        }
+    },
+    methods: {
+        click(evt) {
+            console.log(evt);
+            console.log(evt.target.getBoundingClientRect());
+            document.querySelectorAll('.side-click').forEach(f => {
+                f.classList.remove('active');
+            })
+            evt.target.classList.add('active');
+            let indicator = document.querySelector('.active-indicator');
+            indicator.style.height = evt.target.getBoundingClientRect().height + 'px';
+            indicator.style.top = evt.target.getBoundingClientRect().top + 'px';
+        },
+        active(evt) {
+
         }
     }
 });
