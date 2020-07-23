@@ -11,7 +11,18 @@ let titleArtist = new Vue({
             artist: ''
         }
     }
-})
+});
+
+let touch = false;
+window.addEventListener('pointerover', evt => {
+    if (evt.pointerType == 'touch') {
+        touch = true;
+        document.querySelector('.handle').classList.add('handle-hover')
+    } else {
+        touch = false;
+        document.querySelector('.handle').classList.remove('handle-hover')
+    }
+});
 
 let mediaControls = new Vue({
     el: '.media-controls',
@@ -55,7 +66,7 @@ let mainSongList = Vue.extend({
             <p class="list-duration">Duration</p>
         </div>
         </div>
-        <li v-for="item in songs" v-bind:song="item" v-on:mouseover="hover($event)" v-on:mouseleave="leave($event)" v-on:dblclick="play(item)" :skey="item.id" :key="item.id" class="results-link">
+        <li v-for="item in songs" v-bind:song="item" v-on:mouseover="hover($event)" v-on:mouseleave="leave($event)" v-on:dblclick="play(item)" v-on:click="play(item, true)" :skey="item.id" :key="item.id" class="results-link">
             <i class="material-icons-outlined play-pause" style="opacity: 0;">play_arrow</i>
             <div class="artist-title-album">
                 <p class="list-title">{{ item.title }}</p>
@@ -66,7 +77,10 @@ let mainSongList = Vue.extend({
         </li>
     </div>`,
     methods: {
-        play(song) {
+        play(song, isTouch) {
+            if (isTouch) {
+                if (!touch) return;
+            }
             if (!audio) {
                 audio = new Audio();
             }
@@ -213,6 +227,7 @@ Vue.component('seek-bar', {
         },
         leave() {
             if (seekMouseDown) return;
+            if (touch) return;
             document.querySelector('.handle').classList.remove('handle-hover')
         }
     }
@@ -288,6 +303,7 @@ let mousetouchup = e => {
         seekFillBar.style.width = pBar * 100 + '%';
         audio.currentTime = pBar * audio.duration;
         audio.addEventListener('timeupdate', timeUpdate);
+        if (touch) return;
         document.querySelector('.handle').classList.remove('handle-hover')
     }
 }

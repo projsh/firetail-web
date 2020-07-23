@@ -441,3 +441,9 @@ div.section {
 .side-list-item div {
     pointer-events: none;
 }
+
+@media (hover: none) {
+    li:hover {
+        background: none;
+    }
+}

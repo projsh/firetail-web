@@ -10,20 +10,148 @@
     }
 }
 
-@media screen and (max-width: 650px) {
+@media screen and (max-width: 700px) {
     .sidebar {
         transform: translateX(-240px);
+    }
+
+    body {
+        -webkit-overflow-scrolling: touch;
+        overflow: hidden;
     }
 
     .np-top {
         bottom: 0;
         width: 100% !important;
         margin-left: 0px !important;
+        border-bottom: none;
+        border-top: solid 2px var(--bd);
+        box-shadow: 0px -1px 5px rgba(0, 0, 0, .15);
+        height: 100%;
+    }
+
+    .np-container {
+        height: 100%;
+        flex-direction: column-reverse;
+    }
+
+    .controls-left {
+        height: 30%;
+        align-items: flex-start;
+        justify-content: center;
+        z-index: 2;
+        transform: scale(1);
+        padding-top: 15px;
+        visibility: visible;
+    }
+
+    .media-controls i {
+        font-size: 65px;
+    }
+
+    .media-controls i.small-icon {
+        font-size: 32px;
+    }
+
+    .controls-middle {
+        width: 100%;
+        height: 100%;
+        background: none;
+        flex-direction: column;
+        justify-content: flex-end;
+        overflow: unset;
+    }
+
+    .np-img {
+        min-height: 60%;
+        min-width: 90%;
+    }
+
+    .np-ctrls {
+        height: auto;
+        padding-top: 20px;
+    }
+
+    .np-ctrl.metadata {
+        padding-left: 0px;
+        padding-bottom: 5px;
+        flex-direction: column;
+    }
+
+    .np-ctrl.metadata p {
+        font-size: 22px;
+    }
+
+    .song-artist {
+        font-size: 16px !important;
+    }
+
+    .seek-container {
+        padding-bottom: 0px;
+    }
+
+    .np-ctrl.seek {
+        width: 80%;
+        padding: 25px;
+    }
+
+    .seek-bar, .fill {
+        height: 6px;
+    }
+
+    .handle-hover {
+        height: 10px !important;
+        width: 10px !important;
+    }
+
+    .controls-right {
+        display: none;
     }
 
     .main-ui {
         width: 100% !important;
         height: 100% !important;
         padding: 0px;
+        padding-bottom: 87px;
+    }
+
+    .list-album, .list-duration {
+        display: none !important;
+    }
+
+    .results-link {
+        height: 60px !important;
+    }
+
+    .play-pause {
+        display: none !important;
+    }
+
+    .artist-title-album {
+        align-items: unset;
+        flex-direction: column;
+        justify-content: center;
+        padding-left: 25px;
+    }
+
+    .list-title {
+        margin-left: 0;
+        width: auto;
+        padding-top: 0px;
+        padding-bottom: 0;
+        font-size: 16px;
+    }
+
+    .list-artist {
+        width: auto;
+        padding-top: 6px;
+        padding-bottom: 0px;
+        padding-right: 0px;
+        margin: 0;
+        opacity: .7;
+    }
+
+    .list-section {
+        display: none;
     }
 }
