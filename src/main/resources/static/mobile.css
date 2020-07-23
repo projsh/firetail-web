@@ -1,0 +1,29 @@
+@media screen and (max-width: 1200px) {
+    .controls-left {
+        transform: scale(0.75);
+    }
+}
+
+@media screen and (max-width: 1100px) {
+    .controls-left {
+        visibility: hidden;
+    }
+}
+
+@media screen and (max-width: 650px) {
+    .sidebar {
+        transform: translateX(-240px);
+    }
+
+    .np-top {
+        bottom: 0;
+        width: 100% !important;
+        margin-left: 0px !important;
+    }
+
+    .main-ui {
+        width: 100% !important;
+        height: 100% !important;
+        padding: 0px;
+    }
+}
