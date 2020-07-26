@@ -80,6 +80,8 @@
 
     .np-ctrl.metadata p {
         font-size: 22px;
+        overflow: hidden;
+        max-width: 90%;
     }
 
     .song-artist {
