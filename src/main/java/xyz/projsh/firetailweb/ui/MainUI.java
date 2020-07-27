@@ -2,6 +2,7 @@ package xyz.projsh.firetailweb.ui;
 
 import com.mongodb.client.FindIterable;
 import static com.mongodb.client.model.Filters.eq;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -11,13 +12,19 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
@@ -39,8 +46,18 @@ public class MainUI extends javax.swing.JFrame {
         return fileList;
     }
     
+    public String link = "";
+    
     public MainUI() {
         initComponents();
+        String ip = "";
+        try {
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        link = String.format("http://%s:8080", ip);
+        ipString.setText(String.format("<html><a href=\"\">http://%s:8080</a></html>", ip));
         addSongLabel.setPreferredSize(new Dimension(170, 19));
         addSongLabel.setMaximumSize(new Dimension(170, 19));
         addSongLabel.setVisible(false);
@@ -82,6 +99,16 @@ public class MainUI extends javax.swing.JFrame {
         });
     }
     
+    private void openLink(URI link) {
+        if (Desktop.isDesktopSupported()) {
+            try {
+                Desktop.getDesktop().browse(link);
+            } catch (IOException ex) {
+                Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else { }
+    }
+    
     private void updateSongList() {
         DefaultListModel listModel = new DefaultListModel();
         FindIterable<Document> songs = Database.songs.find();
@@ -105,6 +132,8 @@ public class MainUI extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        ipString = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         listSongs = new javax.swing.JList<>();
@@ -112,6 +141,7 @@ public class MainUI extends javax.swing.JFrame {
         updateListButton = new javax.swing.JButton();
         addSongLabel = new javax.swing.JLabel();
         dropSongsButton = new javax.swing.JButton();
+        filesProgBar = new javax.swing.JProgressBar();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -127,6 +157,16 @@ public class MainUI extends javax.swing.JFrame {
 
         jLabel5.setText("No settings are available quite yet...");
 
+        jLabel6.setText("Web app link:");
+
+        ipString.setText("unknown");
+        ipString.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        ipString.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ipStringMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -135,7 +175,11 @@ public class MainUI extends javax.swing.JFrame {
                 .addGap(17, 17, 17)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ipString, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(200, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -145,7 +189,11 @@ public class MainUI extends javax.swing.JFrame {
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel5)
-                .addContainerGap(187, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(ipString))
+                .addContainerGap(165, Short.MAX_VALUE))
         );
 
         mainTabPane.addTab("Settings", jPanel1);
@@ -190,7 +238,8 @@ public class MainUI extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addGap(0, 195, Short.MAX_VALUE)
+                        .addComponent(filesProgBar, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(dropSongsButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(updateListButton)
@@ -207,12 +256,13 @@ public class MainUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(addSongLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(addSongsButton)
                     .addComponent(updateListButton)
-                    .addComponent(dropSongsButton))
+                    .addComponent(dropSongsButton)
+                    .addComponent(filesProgBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -317,9 +367,14 @@ public class MainUI extends javax.swing.JFrame {
             addSongLabel.setVisible(true);
             Thread addSongs = new Thread(() -> {
                 File[] files = chooser.getSelectedFiles();
+                int num = 0;
                 for (File file : files) {
                     addSongLabel.setText(String.format("Adding %s to library...", file.getName()));
                     Database.addSong(file);
+                    //filesProgBar.setValue();
+                    ++num;
+                    System.out.println(50 / 181 * 100);
+                    System.out.println("Percentage: " + (num / files.length) * 100 + "\nnum: " + num + "\nfiles: " + files.length);
                 }
                 updateSongList();
                 addSongLabel.setVisible(false);
@@ -337,16 +392,27 @@ public class MainUI extends javax.swing.JFrame {
         updateSongList();
     }//GEN-LAST:event_dropSongsButtonActionPerformed
 
+    private void ipStringMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ipStringMouseClicked
+        try {
+            openLink(new URI(link));
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_ipStringMouseClicked
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel addSongLabel;
     private javax.swing.JButton addSongsButton;
     private javax.swing.JButton dropSongsButton;
     private javax.swing.JButton exitButton;
+    private javax.swing.JProgressBar filesProgBar;
+    private javax.swing.JLabel ipString;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

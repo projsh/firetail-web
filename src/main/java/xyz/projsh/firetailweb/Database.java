@@ -65,7 +65,7 @@ public class Database {
                 FileOutputStream writeFile = new FileOutputStream(newFile.getAbsolutePath());
                 writeFile.write(fileData);
                 writeFile.close();
-                System.out.println("Wrote file! " + dataDir);
+                //System.out.println("Wrote file! " + dataDir);
             } catch(IOException err) {
                 System.out.println("Unable to save file...");
                 err.printStackTrace();
@@ -88,7 +88,7 @@ public class Database {
                 songMetadata[1] = audioInfo.getArtist();
                 songMetadata[2] = audioInfo.getAlbum();
                 long dur = audioInfo.getDuration();
-                System.out.println(dur);
+                //System.out.println(dur);
                 double min = Math.floor(dur / 60000);
                 double sec = Math.floor((dur / 1000) - (min * 60));
                 String secString = String.valueOf((int)sec);

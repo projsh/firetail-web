@@ -68,6 +68,11 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jLabel4" min="-2" pref="298" max="-2" attributes="0"/>
                           <Component id="jLabel5" min="-2" pref="244" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="ipString" min="-2" pref="217" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
                       <EmptySpace pref="200" max="32767" attributes="0"/>
                   </Group>
@@ -80,7 +85,12 @@
                       <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="187" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="ipString" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace pref="165" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -101,6 +111,22 @@
                 <Property name="text" type="java.lang.String" value="No settings are available quite yet..."/>
               </Properties>
             </Component>
+            <Component class="javax.swing.JLabel" name="jLabel6">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Web app link:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="ipString">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="unknown"/>
+                <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+                  <Color id="Hand Cursor"/>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="ipStringMouseClicked"/>
+              </Events>
+            </Component>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="jPanel2">
@@ -120,7 +146,8 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jScrollPane1" alignment="1" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
-                              <EmptySpace min="0" pref="195" max="32767" attributes="0"/>
+                              <Component id="filesProgBar" pref="217" max="32767" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
                               <Component id="dropSongsButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="updateListButton" min="-2" max="-2" attributes="0"/>
@@ -142,12 +169,13 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="addSongLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="183" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="185" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="addSongsButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="updateListButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="dropSongsButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="filesProgBar" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -206,6 +234,8 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dropSongsButtonActionPerformed"/>
               </Events>
+            </Component>
+            <Component class="javax.swing.JProgressBar" name="filesProgBar">
             </Component>
           </SubComponents>
         </Container>
