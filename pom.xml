@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>xyz.projsh</groupId>
 	<artifactId>firetailweb</artifactId>
-	<version>0.1.0</version>
+	<version>0.2.0</version>
 	<name>firetail-web</name>
 	<description>Browser version of Firetail</description>
 
@@ -50,7 +50,7 @@
                 <dependency>
                     <groupId>com.formdev</groupId>
                     <artifactId>flatlaf</artifactId>
-                    <version>0.35</version>
+                    <version>0.38</version>
                 </dependency>
                 
                 <dependency>
@@ -119,6 +119,18 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-jar-plugin</artifactId>
+                            <configuration>
+                                <archive>                   
+                                    <manifest>
+                                        <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                        <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                                    </manifest>
+                                </archive>
+                            </configuration>
+                        </plugin>
 		</plugins>
 	</build>
 

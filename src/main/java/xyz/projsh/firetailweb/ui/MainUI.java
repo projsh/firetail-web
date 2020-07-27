@@ -4,6 +4,7 @@ import com.mongodb.client.FindIterable;
 import static com.mongodb.client.model.Filters.eq;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -27,10 +28,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JTabbedPane;
 import org.bson.Document;
 import xyz.projsh.firetailweb.Database;
+import xyz.projsh.firetailweb.FiretailWeb;
 
 public class MainUI extends javax.swing.JFrame {
     
@@ -61,6 +64,8 @@ public class MainUI extends javax.swing.JFrame {
         addSongLabel.setPreferredSize(new Dimension(170, 19));
         addSongLabel.setMaximumSize(new Dimension(170, 19));
         addSongLabel.setVisible(false);
+        filesProgBar.setVisible(false);
+        verLabel.setText(FiretailWeb.versionString);
         setLocationRelativeTo(null);
         addWindowListener(new WindowAdapter() {
             @Override
@@ -68,6 +73,21 @@ public class MainUI extends javax.swing.JFrame {
                 setState(ICONIFIED);
             }
         });
+        try {
+            byte[] ftIconBytes = {};
+            try {
+                ftIconBytes = Files.readAllBytes(Paths.get(this.getClass().getClassLoader().getResource("static/assets/firetail.png").toURI().getPath()));
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            ImageIcon icon = new ImageIcon(ftIconBytes);
+            Image image = icon.getImage();
+            Image scaledImg = image.getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+            icon = new ImageIcon(scaledImg);
+            ftIcon.setIcon(icon);
+        } catch (IOException ex) {
+            Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
         //resourceField.setText(FiretailWeb.musLoc);
         mainTabPane.addChangeListener(e -> {
             JTabbedPane pane = (JTabbedPane) e.getSource();
@@ -146,6 +166,8 @@ public class MainUI extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        ftIcon = new javax.swing.JLabel();
+        verLabel = new javax.swing.JLabel();
         exitButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -180,7 +202,7 @@ public class MainUI extends javax.swing.JFrame {
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(ipString, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(200, Short.MAX_VALUE))
+                .addContainerGap(189, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -193,7 +215,7 @@ public class MainUI extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(ipString))
-                .addContainerGap(165, Short.MAX_VALUE))
+                .addContainerGap(184, Short.MAX_VALUE))
         );
 
         mainTabPane.addTab("Settings", jPanel1);
@@ -220,7 +242,7 @@ public class MainUI extends javax.swing.JFrame {
             }
         });
 
-        addSongLabel.setText("Adding songs to database...");
+        addSongLabel.setText("Adding to database...");
 
         dropSongsButton.setText("Drop Songs");
         dropSongsButton.addActionListener(new java.awt.event.ActionListener() {
@@ -238,7 +260,7 @@ public class MainUI extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addComponent(filesProgBar, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
+                        .addComponent(filesProgBar, javax.swing.GroupLayout.DEFAULT_SIZE, 182, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(dropSongsButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -246,7 +268,7 @@ public class MainUI extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(addSongsButton))
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(addSongLabel)
+                        .addComponent(addSongLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 480, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -256,56 +278,75 @@ public class MainUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(addSongLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(addSongsButton)
                     .addComponent(updateListButton)
                     .addComponent(dropSongsButton)
-                    .addComponent(filesProgBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(filesProgBar, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
         mainTabPane.addTab("Songs", jPanel2);
 
         jLabel1.setFont(jLabel1.getFont().deriveFont(jLabel1.getFont().getStyle() | java.awt.Font.BOLD, 36));
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("<html><center>Firetail Web (beta)</center></html>");
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabel1.setText("<html>Firetail Web</html>");
+        jLabel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 15, 0, 15));
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
-        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel2.setText("Copyright © 2020 projsh_");
+        jLabel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 15, 5, 15));
 
-        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel3.setText("<html><center>WARNING: This project is incomplete and is not designed for everyday use. Use at your own risk.</center></html>");
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabel3.setText("<html>WARNING: This project is incomplete and is not designed for everyday use. Use at your own risk.</html>");
         jLabel3.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jLabel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 15, 0, 15));
         jLabel3.setName(""); // NOI18N
+
+        ftIcon.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 0));
+
+        verLabel.setText("v0.0.0");
+        verLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 15, 0, 15));
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(ftIcon)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(verLabel)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 503, Short.MAX_VALUE))))
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
+                        .addGap(48, 48, 48))
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(ftIcon)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(verLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel2)
+                        .addGap(9, 9, 9)
+                        .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE)))
+                .addContainerGap())
         );
 
         mainTabPane.addTab("About", jPanel3);
@@ -365,17 +406,18 @@ public class MainUI extends javax.swing.JFrame {
         details.actionPerformed(null);
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             addSongLabel.setVisible(true);
+            filesProgBar.setVisible(true);
             Thread addSongs = new Thread(() -> {
                 File[] files = chooser.getSelectedFiles();
                 int num = 0;
                 for (File file : files) {
                     addSongLabel.setText(String.format("Adding %s to library...", file.getName()));
                     Database.addSong(file);
-                    //filesProgBar.setValue();
+                    filesProgBar.setValue(num * 100 / files.length);
                     ++num;
-                    System.out.println(50 / 181 * 100);
-                    System.out.println("Percentage: " + (num / files.length) * 100 + "\nnum: " + num + "\nfiles: " + files.length);
                 }
+                filesProgBar.setVisible(false);
+                filesProgBar.setValue(0);
                 updateSongList();
                 addSongLabel.setVisible(false);
             });
@@ -406,6 +448,7 @@ public class MainUI extends javax.swing.JFrame {
     private javax.swing.JButton dropSongsButton;
     private javax.swing.JButton exitButton;
     private javax.swing.JProgressBar filesProgBar;
+    private javax.swing.JLabel ftIcon;
     private javax.swing.JLabel ipString;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -420,5 +463,6 @@ public class MainUI extends javax.swing.JFrame {
     private javax.swing.JList<String> listSongs;
     private javax.swing.JTabbedPane mainTabPane;
     private javax.swing.JButton updateListButton;
+    private javax.swing.JLabel verLabel;
     // End of variables declaration//GEN-END:variables
 }

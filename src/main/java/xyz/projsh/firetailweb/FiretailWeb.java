@@ -1,12 +1,11 @@
 package xyz.projsh.firetailweb;
 
 import xyz.projsh.firetailweb.ui.MainUI;
-import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.FlatIntelliJLaf;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.SwingUtilities;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -18,6 +17,8 @@ public class FiretailWeb {
     
     private static String[] args;
     private static ConfigurableApplicationContext context;
+    
+    public static String versionString = "v0.2.0";
     
     public static void doRestart() {
         try {
@@ -37,7 +38,7 @@ public class FiretailWeb {
     }
     
     public static void main(String[] args) {
-        FlatDarculaLaf.install();
+        FlatIntelliJLaf.install();
         new Database();
 	FiretailWeb.args = args;
         FiretailWeb.context = SpringApplication.run(FiretailWeb.class, args);
