@@ -1,7 +1,6 @@
 package xyz.projsh.firetailweb;
 
 import xyz.projsh.firetailweb.ui.MainUI;
-import com.formdev.flatlaf.FlatIntelliJLaf;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.logging.Level;
@@ -38,7 +37,6 @@ public class FiretailWeb {
     }
     
     public static void main(String[] args) {
-        FlatIntelliJLaf.install();
         new Database();
 	FiretailWeb.args = args;
         FiretailWeb.context = SpringApplication.run(FiretailWeb.class, args);

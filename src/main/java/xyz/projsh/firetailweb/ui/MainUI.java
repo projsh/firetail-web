@@ -1,5 +1,6 @@
 package xyz.projsh.firetailweb.ui;
 
+import com.formdev.flatlaf.*;
 import com.mongodb.client.FindIterable;
 import static com.mongodb.client.model.Filters.eq;
 import java.awt.Desktop;
@@ -26,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import javax.swing.Action;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -52,6 +54,12 @@ public class MainUI extends javax.swing.JFrame {
     public String link = "";
     
     public MainUI() {
+        Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+        if (prefs.get("theme", "light") == "light") {
+            FlatDarculaLaf.install();
+        } else {
+            FlatIntelliJLaf.install();
+        }
         initComponents();
         String ip = "";
         try {
@@ -76,19 +84,23 @@ public class MainUI extends javax.swing.JFrame {
         try {
             byte[] ftIconBytes = {};
             try {
-                ftIconBytes = Files.readAllBytes(Paths.get(this.getClass().getClassLoader().getResource("static/assets/firetail.png").toURI().getPath()));
+                String iconPath = this.getClass().getClassLoader().getResource("static/assets/firetail.png").toURI().getPath();
+                if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                    iconPath = iconPath.substring(1, iconPath.length());
+                }
+                ftIconBytes = Files.readAllBytes(Paths.get(iconPath));
+                ImageIcon icon = new ImageIcon(ftIconBytes);
+                Image image = icon.getImage();
+                Image scaledImg = image.getScaledInstance(75, 75, Image.SCALE_SMOOTH);
+                icon = new ImageIcon(scaledImg);
+                ftIcon.setIcon(icon);
             } catch (URISyntaxException ex) {
                 Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
             }
-            ImageIcon icon = new ImageIcon(ftIconBytes);
-            Image image = icon.getImage();
-            Image scaledImg = image.getScaledInstance(80, 80, Image.SCALE_SMOOTH);
-            icon = new ImageIcon(scaledImg);
-            ftIcon.setIcon(icon);
-        } catch (IOException ex) {
+            
+        } catch (Exception ex) {
             Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //resourceField.setText(FiretailWeb.musLoc);
         mainTabPane.addChangeListener(e -> {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             switch (pane.getTitleAt(pane.getSelectedIndex())) {
@@ -151,9 +163,11 @@ public class MainUI extends javax.swing.JFrame {
         mainTabPane = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         ipString = new javax.swing.JLabel();
+        themeCombo = new javax.swing.JComboBox<>();
+        jSeparator1 = new javax.swing.JSeparator();
+        jLabel7 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         listSongs = new javax.swing.JList<>();
@@ -177,8 +191,6 @@ public class MainUI extends javax.swing.JFrame {
         jLabel4.setFont(jLabel4.getFont().deriveFont(jLabel4.getFont().getStyle() | java.awt.Font.BOLD, 24));
         jLabel4.setText("Server is active!");
 
-        jLabel5.setText("No settings are available quite yet...");
-
         jLabel6.setText("Web app link:");
 
         ipString.setText("unknown");
@@ -189,20 +201,31 @@ public class MainUI extends javax.swing.JFrame {
             }
         });
 
+        themeCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Light", "Dark" }));
+        themeCombo.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                themeComboItemStateChanged(evt);
+            }
+        });
+
+        jLabel7.setText("Theme");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jSeparator1)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(17, 17, 17)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ipString, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(189, Short.MAX_VALUE))
+                        .addComponent(ipString, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(themeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(198, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -210,13 +233,19 @@ public class MainUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(ipString))
-                .addContainerGap(184, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(themeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(137, Short.MAX_VALUE))
         );
+
+        themeCombo.getAccessibleContext().setAccessibleName("Theme");
 
         mainTabPane.addTab("Settings", jPanel1);
 
@@ -280,11 +309,12 @@ public class MainUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(addSongsButton)
-                    .addComponent(updateListButton)
-                    .addComponent(dropSongsButton)
-                    .addComponent(filesProgBar, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(filesProgBar, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(addSongsButton)
+                        .addComponent(updateListButton)
+                        .addComponent(dropSongsButton)))
                 .addContainerGap())
         );
 
@@ -442,6 +472,13 @@ public class MainUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_ipStringMouseClicked
 
+    private void themeComboItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_themeComboItemStateChanged
+        String selectedItem = themeCombo.getSelectedItem().toString();
+        if (selectedItem == "Dark") {
+            //Database.userSettings.updateOne(eq("theme"), );
+        }
+    }//GEN-LAST:event_themeComboItemStateChanged
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel addSongLabel;
     private javax.swing.JButton addSongsButton;
@@ -454,14 +491,16 @@ public class MainUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JList<String> listSongs;
     private javax.swing.JTabbedPane mainTabPane;
+    private javax.swing.JComboBox<String> themeCombo;
     private javax.swing.JButton updateListButton;
     private javax.swing.JLabel verLabel;
     // End of variables declaration//GEN-END:variables

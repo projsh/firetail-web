@@ -211,6 +211,13 @@ fetch(`http://${hostnamePort}/api/getAllSongs`).then(resp => {
             }
             sortArray(allSongs, 'artist');
             mainSongListComp.songs = allSongs;
+            setTimeout(() => {
+                document.querySelector('.cover').style.opacity = 0;
+                document.body.style.overflow = "auto";
+                setTimeout(() => {
+                    document.querySelector('.cover').style.display = 'none'
+                }, 250)
+            }, 350)
         })
     })
 });
