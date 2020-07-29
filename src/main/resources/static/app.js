@@ -197,8 +197,6 @@ let mainSongListComp = new mainSongList({
     }
 });
 
-mainSongListComp.$mount('.tab-container');
-
 let allSongs = [];
 
 fetch(`http://${hostnamePort}/api/getAllSongs`).then(resp => {
@@ -419,8 +417,6 @@ let sidebar = new Vue({
     },
     methods: {
         click(evt, item) {
-            console.log(evt);
-            console.log(evt.target.getBoundingClientRect());
             document.querySelectorAll('.side-click').forEach(f => {
                 f.classList.remove('active');
             });
@@ -470,3 +466,7 @@ let homeTab = Vue.extend({
     template: 
     `<div class="tab-container"><p>lol</p></div>`
 });
+
+let home = new homeTab
+
+home.$mount('.tab-container')

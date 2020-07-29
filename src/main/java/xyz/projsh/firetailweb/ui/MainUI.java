@@ -6,6 +6,8 @@ import static com.mongodb.client.model.Filters.eq;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -33,6 +35,9 @@ import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import org.bson.Document;
 import xyz.projsh.firetailweb.Database;
 import xyz.projsh.firetailweb.FiretailWeb;
@@ -51,16 +56,15 @@ public class MainUI extends javax.swing.JFrame {
         return fileList;
     }
     
-    public String link = "";
+    private String link = "";
+    private Preferences prefs = Preferences.userNodeForPackage(this.getClass());
     
     public MainUI() {
-        Preferences prefs = Preferences.userNodeForPackage(this.getClass());
-        if (prefs.get("theme", "light") == "light") {
-            FlatDarculaLaf.install();
-        } else {
-            FlatIntelliJLaf.install();
-        }
+        updateLaF();
         initComponents();
+        if (prefs.get("theme", "light").equals("dark")) {
+            themeCombo.setSelectedIndex(1);
+        }
         String ip = "";
         try {
             ip = InetAddress.getLocalHost().getHostAddress();
@@ -129,6 +133,19 @@ public class MainUI extends javax.swing.JFrame {
                 break;
             }
         });
+    }
+    
+    public void updateLaF() {
+        try {
+            if (prefs.get("theme", "light").equals("light")) {
+                UIManager.setLookAndFeel(new FlatIntelliJLaf());
+            } else {
+                UIManager.setLookAndFeel(new FlatDarculaLaf());
+            }
+        } catch (UnsupportedLookAndFeelException ex) {
+            Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        SwingUtilities.updateComponentTreeUI(this);
     }
     
     private void openLink(URI link) {
@@ -202,9 +219,9 @@ public class MainUI extends javax.swing.JFrame {
         });
 
         themeCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Light", "Dark" }));
-        themeCombo.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                themeComboItemStateChanged(evt);
+        themeCombo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                themeComboActionPerformed(evt);
             }
         });
 
@@ -223,8 +240,9 @@ public class MainUI extends javax.swing.JFrame {
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(ipString, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(themeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(themeCombo, javax.swing.GroupLayout.Alignment.LEADING, 0, 116, Short.MAX_VALUE)))
                 .addContainerGap(198, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -472,12 +490,15 @@ public class MainUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_ipStringMouseClicked
 
-    private void themeComboItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_themeComboItemStateChanged
+    private void themeComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_themeComboActionPerformed
         String selectedItem = themeCombo.getSelectedItem().toString();
-        if (selectedItem == "Dark") {
-            //Database.userSettings.updateOne(eq("theme"), );
+        if (selectedItem.equals("Dark")) {
+            prefs.put("theme", "dark");
+        } else {
+            prefs.put("theme", "light");
         }
-    }//GEN-LAST:event_themeComboItemStateChanged
+        updateLaF();
+    }//GEN-LAST:event_themeComboActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel addSongLabel;
