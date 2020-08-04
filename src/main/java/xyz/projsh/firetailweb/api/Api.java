@@ -1,29 +1,18 @@
 package xyz.projsh.firetailweb.api;
 
 import com.mongodb.client.FindIterable;
-import static com.mongodb.client.model.Filters.eq;
-import java.io.File;
-import java.io.FileInputStream;
+import java.util.List;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-import javax.servlet.http.HttpServletResponse;
 import org.bson.Document;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import xyz.projsh.firetailweb.Database;
 import xyz.projsh.firetailweb.FiretailWeb;
 
@@ -31,22 +20,54 @@ import xyz.projsh.firetailweb.FiretailWeb;
 @RequestMapping("/api")
 public class Api {
     
-    @GetMapping("/getfiles")
-    public Set<String> getFiles() throws IOException {
+    @GetMapping("/getAllSongs")
+    public Set<GetSong> getAllSongs() {
         FindIterable<Document> songs = Database.songs.find();
-        Set<String> files = new HashSet<>();
+        Set<GetSong> files = new HashSet<>();
         for (Document song : songs) {
-            files.add(song.getString("fileName"));
+            files.add(new GetSong(song.getString("title"), song.getString("artist"),song.getString("album"), song.getString("fileName"), song.get("_id").toString(), song.getString("duration")));
         }
         return files;
     }
     
-    @GetMapping("/getAllSongs")
-    public Set<AllSongs> getAllSongs() throws IOException {
+    @GetMapping("/getAllAlbums")
+    public Set<AllAlbums> getAllAlbums() {
         FindIterable<Document> songs = Database.songs.find();
-        Set<AllSongs> files = new HashSet<>();
+        Set<AllAlbums> albums = new HashSet<>();
+        Map<String, Boolean> foundAlbum = new HashMap<String, Boolean>();
         for (Document song : songs) {
-            files.add(new AllSongs(song.getString("title"), song.getString("artist"),song.getString("album"), song.getString("fileName"), song.get("_id").toString(), song.getString("duration")));
+            try {
+                if (!foundAlbum.get(song.getString("album"))) {
+                    if (!song.getString("album").equals(null)) {
+                        albums.add(new AllAlbums(song.getString("album"), song.getString("artist")));
+                        foundAlbum.put(song.getString("album"), true);
+                    }
+                }
+            } catch(NullPointerException err) {
+                try {
+                    if (!song.getString("album").equals(null)) {
+                        albums.add(new AllAlbums(song.getString("album"), song.getString("artist")));
+                        foundAlbum.put(song.getString("album"), true);
+                    }
+                } catch(NullPointerException err1) {};
+            }
+        }
+        return albums;
+    }
+    
+    @GetMapping("/getAlbum")
+    public Set<GetSong> getAlbum(@RequestParam String album) {
+        FindIterable<Document> songs = Database.songs.find();
+        Set<GetSong> files = new HashSet<>();
+        for (Document song : songs) {
+            try {
+                if (!song.getString("album").equals(null) && song.getString("album").equals(album)) {
+                    System.out.println(song.getString("album"));
+                    files.add(new GetSong(song.getString("title"), song.getString("artist"),song.getString("album"), song.getString("fileName"), song.get("_id").toString(), song.getString("duration")));
+                }
+            } catch(NullPointerException err) {
+                //System.out.println(err.getMessage());
+            }
         }
         return files;
     }
@@ -64,64 +85,6 @@ public class Api {
         });
         restartThread.setDaemon(false);
         restartThread.start();
-    }
-    
-    @PostMapping("/getFile")
-    public byte[] getFile(@RequestBody String file) throws IOException {
-        FindIterable<Document> songs = Database.songs.find(eq("fileName", file));
-        String dir = "";
-        for (Document song : songs) {
-            System.out.println(file + " || " + song.getString("location"));
-            dir = new File(song.getString("location")).getAbsolutePath();
-            break;
-        }
-        return Files.readAllBytes(Paths.get(dir));
-    }
-    
-    @PostMapping("/getFileNew")
-    public ResponseEntity<InputStreamResource> getFileNew(@RequestBody String file, final HttpServletResponse response) throws IOException {
-        FindIterable<Document> songs = Database.songs.find(eq("fileName", file));
-        String fileLoc = "";
-        for (Document song : songs) {
-            System.out.println(file + " || " + song.getString("location"));
-            fileLoc = song.getString("location");
-            break;
-        }
-        File songFile = new File(fileLoc);
-        InputStreamResource resource = new InputStreamResource(new FileInputStream(songFile));
-        response.setContentType("audio/mp3");
-        return new ResponseEntity(resource, HttpStatus.OK);
-    }
-    
-    @GetMapping("/streamFile")
-    @ResponseBody
-    public ResponseEntity<StreamingResponseBody> streamFile(@RequestParam String file, final HttpServletResponse response) {
-        response.setContentType("audio/mp3");
-        response.setHeader(
-                "Content-Disposition",
-                "attachment;filename=test.mp3");
-        StreamingResponseBody stream = out -> {
-            FindIterable<Document> songs = Database.songs.find(eq("fileName", file));
-            for (Document song : songs) {
-                System.out.println(file + " || " + song.getString("location"));
-                File songFile = new File(song.getString("location"));
-                final OutputStream outputStream = response.getOutputStream();
-                try {
-                    final InputStream inputStream = new FileInputStream(songFile);
-                    byte[] bytes = new byte[1024];
-                    int length;
-                    while ((length = inputStream.read(bytes)) >= 0) {
-                        outputStream.write(bytes, 0, length);
-                    }
-                    inputStream.close();
-                    outputStream.close();
-                } catch (final IOException err) {
-                    
-                }
-                break;
-            }
-        };
-        return new ResponseEntity(stream, HttpStatus.OK);
     }
     
 }

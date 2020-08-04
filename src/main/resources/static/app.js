@@ -2,6 +2,7 @@ let hostnamePort = `${location.hostname}:${location.port}`;
 let audio;
 let currentlyPlaying = false;
 let currentIndex = 0;
+let queue = [];
 
 let titleArtist = new Vue({
     el: '.np-ctrl.metadata',
@@ -42,11 +43,11 @@ let mediaControls = new Vue({
             }
         },
         skip() {
-            mainSongListComp.play(mainSongListComp.songs[currentIndex + 1]);
+            mainSongListComp.play(queue[currentIndex + 1]);
         },
         prev() {
             if (audio.currentTime < 3) {
-                mainSongListComp.play(mainSongListComp.songs[currentIndex - 1]);
+                mainSongListComp.play(queue[currentIndex - 1]);
             } else {
                 audio.currentTime = 0;
             }
@@ -67,7 +68,7 @@ let mainSongList = Vue.extend({
                 <p class="list-duration">Duration</p>
             </div>
             </div>
-            <li v-for="item in songs" v-bind:song="item" v-on:mouseover="hover($event)" v-on:mouseleave="leave($event)" v-on:dblclick="play(item)" v-on:click="play(item, true)" :skey="item.id" :key="item.id" class="results-link">
+            <li v-for="item in songs" v-bind:song="item" v-on:mouseover="hover($event)" v-on:mouseleave="leave($event)" v-on:dblclick="play(item, false, true)" v-on:click="play(item, true, true)" :skey="item.id" :key="item.id" class="results-link">
                 <i class="material-icons-outlined play-pause" style="opacity: 0;">play_arrow</i>
                 <div class="artist-title-album">
                     <p class="list-title">{{ item.title }}</p>
@@ -79,7 +80,7 @@ let mainSongList = Vue.extend({
         </div>
     </div>`,
     methods: {
-        play(song, isTouch) {
+        play(song, isTouch, newQueue) {
             if (isTouch) {
                 if (!touch) return;
             }
@@ -93,11 +94,11 @@ let mainSongList = Vue.extend({
             audio.src = `http://${hostnamePort}/audio/${song.fileName}`;
             document.querySelector('.fill').style.width = '0%';
             //audio.load();
-            currentIndex = mainSongListComp.songs.indexOf(song);
-            this.updateActive();
             mediaControls.playPauseIcon = 'pause'
             titleArtist.title = song.title;
             titleArtist.artist = song.artist;
+            mobileNp.title = song.title;
+            mobileNp.artist = song.artist;
             let imgURL = `http://${hostnamePort}/img/${song.artist}${song.album}.jpg`;
             fetch(imgURL).then(response => {
                 if (response.ok) {
@@ -105,8 +106,18 @@ let mainSongList = Vue.extend({
                 } else {
                     updateImg.updateBg();
                 }
-            })
+            });
+            currentIndex = queue.indexOf(song);
+            this.updateActive();
             audio.play().then(() => {
+                if (newQueue) {
+                    queue = [];
+                    mainSongListComp.songs.forEach(f => {
+                        queue.push(f);
+                    })
+                    currentIndex = queue.indexOf(song);
+                    this.updateActive();
+                }
                 updateMediaSession(song);
                 audio.addEventListener('pause', pauseEvent);
                 audio.addEventListener('play', playEvent);
@@ -116,16 +127,18 @@ let mainSongList = Vue.extend({
             })
         },
         updateActive() {
-            let all = document.querySelectorAll('.results-link');
-            all.forEach(f => {
-                f.classList.remove('active');
-                f.children[0].textContent = 'play_arrow';
-                f.children[0].style.opacity = 0;
-            });
-            let icon = all[currentIndex].children[0]
-            all[currentIndex].classList.add('active');
-            icon.textContent = 'volume_up';
-            icon.style.opacity = 1;
+            try {
+                let all = document.querySelectorAll('.results-link');
+                all.forEach(f => {
+                    f.classList.remove('active');
+                    f.children[0].textContent = 'play_arrow';
+                    f.children[0].style.opacity = 0;
+                });
+                let icon = all[currentIndex].children[0]
+                all[currentIndex].classList.add('active');
+                icon.textContent = 'volume_up';
+                icon.style.opacity = 1;
+            } catch(err){}
         },
         hover(evt) {
             if (evt.target.children[0]) {
@@ -208,7 +221,6 @@ fetch(`http://${hostnamePort}/api/getAllSongs`).then(resp => {
                 allSongs.push({id: f.id, title: f.title, artist: f.artist, album: f.album, fileName: f.fileName, dur: f.duration});
             }
             sortArray(allSongs, 'artist');
-            mainSongListComp.songs = allSongs;
             setTimeout(() => {
                 document.querySelector('.cover').style.opacity = 0;
                 document.body.style.overflow = "auto";
@@ -217,6 +229,12 @@ fetch(`http://${hostnamePort}/api/getAllSongs`).then(resp => {
                 }, 250)
             }, 350)
         })
+        allSongs.forEach(f => {
+            queue.push(f);
+            mainSongListComp.songs.push(f);
+        });
+
+        mainSongListComp.$mount('.tab-container');
     })
 });
 
@@ -368,7 +386,7 @@ try {
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         updateMode('dark');
     } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-        updateMode('dark');
+        updateMode('light');
     } else {
         updateMode('dark');
     }
@@ -405,6 +423,7 @@ let sidebar = new Vue({
             sidebarItems: [
                 {id: 'homeTab', type: 'item', label: 'Home', icon: 'home'},
                 {id: 'settingsTab', type: 'item', label: 'Settings', icon: 'settings'},
+                {id: 'addSongsTab', type: 'item', label: 'Add Songs', icon: 'add'},
                 {id: 'libraryLabel', type: 'label', label: 'Library'},
                 {id: 'likedTab', type: 'item', label: 'Liked Songs', icon: 'favorite_border'},
                 {id: 'allTab', type: 'item', label: 'All Songs', icon: 'music_note'},
@@ -425,25 +444,56 @@ let sidebar = new Vue({
             indicator.style.height = evt.target.getBoundingClientRect().height + 'px';
             indicator.style.top = evt.target.getBoundingClientRect().top + 'px';
             tabName.title = item.label;
+            tabName.hideButtons();
             if (mountedTab != null) {
                 mountedTab.$destroy;
                 document.querySelector('.tab-container').innerHTML = '';
             }
             switch(item.id) {
                 case "allTab":
-                    let mainSongListComp = new mainSongList({
+                    mainSongListComp = new mainSongList({
                         data: {
                             songs: []
                         }
                     });
-                    mainSongListComp.songs = allSongs;
+                    allSongs.forEach(f => {
+                        mainSongListComp.songs.push(f);
+                    });
                     mainSongListComp.$mount('.tab-container');
+                    if (currentIndex) {
+                        mainSongListComp.updateActive();
+                    }
                     mountedTab = mainSongListComp;
                     break;
                 case "homeTab":
                     let home = new homeTab;
                     home.$mount('.tab-container');
                     mountedTab = homeTab;
+                    break;
+                case "albumsTab":
+                    album = new albumTab({
+                        data() {
+                            return {
+                                albumList: []
+                            }
+                        }
+                    });
+                    let usedArtists = [];
+                    fetch(`http://${hostnamePort}/api/getAllAlbums`).then(resp => {
+                        resp.json().then(albums => {
+                            sortArray(albums, "name");
+                            albums.forEach((f, i) => {
+                                album.albumList.push({id: i, name: f.name, artist: f.artist});
+                            });
+                        })
+                    })
+                    album.$mount('.tab-container');
+                    mountedTab = albumTab;
+                    break;
+                default:
+                    let missingTab = new noTab;
+                    missingTab.$mount('.tab-container');
+                    mountedTab = noTab;
             }
         },
         active(evt) {
@@ -458,15 +508,175 @@ let tabName = new Vue({
         return {
             title: 'Home'
         }
+    },
+    methods: {
+        async showButtons(showAlbumArt, album, artist) {
+            document.querySelector('#tabBackButton').style.display = 'block';
+            if (showAlbumArt) {
+                let img =  `http://${hostnamePort}/img/${artist}${album}.jpg`;
+                let finImg = `/assets/no_album.svg`;
+                let getImg = fetch(img).then(resp => {
+                    if (resp.ok) {
+                        finImg = img;
+                    }
+                });
+                await getImg;
+                document.querySelector('.tab-album-art').style.backgroundImage = `url('${finImg}')`;
+                document.querySelector('.tab-album-art').style.display = 'block';
+            }
+        },
+        hideButtons() {
+            document.querySelector('#tabBackButton').style.display = 'none';
+            document.querySelector('.tab-album-art').style.display = 'none';
+        }
     }
 })
+
+//missing tab
+let noTab = Vue.extend({
+    template: 
+    `<div class="tab-container">
+        <div class="no-tab">
+            <i class="material-icons-outlined missing-icon">block</i>
+            <div>
+                <h1>Tab missing</h1>
+                <p>The handler for this tab seems to be missing.</p>
+            </div>
+        </div>
+    </div>`
+});
 
 //home tab
 let homeTab = Vue.extend({
     template: 
-    `<div class="tab-container"><p>lol</p></div>`
+    `<div class="tab-container">
+        <div class="home">
+            <i class="material-icons-outlined missing-icon">home</i>
+            <div>
+                <h1>We're busy building your home tab!</h1>
+                <p>Check back later, you'll see this tab change over time!</p>
+            </div>
+        </div>
+    </div>`
 });
 
 let home = new homeTab
 
-home.$mount('.tab-container')
+//home.$mount('.tab-container');
+
+//albums tab
+
+Vue.component('album-items', {
+    props: ['album'],
+    template:
+    `<div class="album-item" v-on:click="getAlbum(album.name, album.artist)">
+        <img loading="lazy" class="album-item-art" @load="load" v-bind:src="bg"/>
+        <div class="album-info">
+            <p class="album-name">{{album.name}}</p>
+            <p class="album-artist">{{album.artist}}</p>
+        </div>
+    </div>`,
+    asyncComputed: {
+        bg: async function() {
+            let img =  `http://${hostnamePort}/img/${this.album.artist}${this.album.name}.jpg`;
+            let finImg = `/assets/no_album.svg`;
+            let getImg = fetch(img).then(resp => {
+                if (resp.ok) {
+                    finImg = img;
+                }
+            });
+            await getImg;
+            return finImg;
+        }
+    },
+    methods: {
+        load() {
+            this.$el.children[0].style.opacity = 1;
+        },
+        getAlbum(album, artist) {
+            fetch(`http://${hostnamePort}/api/getAlbum?album=${encodeURIComponent(album)}`).then(resp => {
+                resp.json().then(songs => {
+                    mountedTab.$destroy;
+                    document.querySelector('.tab-container').innerHTML = '';
+                    mainSongListComp = new mainSongList({
+                        data: {
+                            songs: []
+                        }
+                    });
+                    songs.forEach((f, i) => {
+                        if (f.title == null || f.artist == null || f.album == null || f.title == "" || f.artist == "" || f.album == "") {
+                            mainSongListComp.songs.push({id: f.id, title: f.fileName, artist: "Unknown Artist", album: "Unknown Album", fileName: f.fileName, dur: f.duration});
+                        } else {
+                            mainSongListComp.songs.push({id: f.id, title: f.title, artist: f.artist, album: f.album, fileName: f.fileName, dur: f.duration});
+                        }
+                        sortArray(mainSongListComp.songs, 'title');
+                        setTimeout(() => {
+                            document.querySelector('.cover').style.opacity = 0;
+                            document.body.style.overflow = "auto";
+                            setTimeout(() => {
+                                document.querySelector('.cover').style.display = 'none'
+                            }, 250)
+                        }, 350)
+                    });
+                    tabName.showButtons(true, album, artist);
+                    tabName.title = album;
+                    mainSongListComp.$mount('.tab-container');
+                    if (currentIndex) {
+                        mainSongListComp.updateActive();
+                    }
+                    mountedTab = mainSongListComp;
+                })
+            })
+        }
+    }
+})
+
+let albumTab = Vue.extend({
+    template: 
+    `<div class="tab-container">
+        <div class="album-tab">
+            <album-items v-for="item in albumList" v-bind:album="item" v-bind:id="item.id"></album-items>
+        </div>
+    </div>`
+})
+
+let mobileNp = new Vue({
+    el: '.np-mobile-container',
+    methods: {
+        expand() {
+            document.body.style.overflow = 'hidden';
+            document.querySelector('.np-top').classList.add('expand');
+            document.querySelector('.np-container').style.opacity = 1;
+            document.querySelector('.np-container').style.display = 'flex'
+            this.$el.style.display = 'none';
+            document.querySelector('.np-mobile-container').style.opacity = 0;
+        },
+        playPause() {
+            
+        }
+    },
+    data() {
+        return {
+            title: 'No song playing',
+            artist: ''
+        }
+    }
+});
+
+let mobileNpExpand = new Vue({
+    el: '.mobile-top-btns',
+    methods: {
+        hide() {
+            document.body.style.overflow = 'auto';
+            document.querySelector('.np-top').classList.remove('expand');
+            document.querySelector('.np-container').style.opacity = 0;
+            setTimeout(() => {
+                document.querySelector('.np-container').style.display = 'none';
+                document.querySelector('.np-mobile-container').style.display = 'flex';
+                setTimeout(() => {
+                    document.querySelector('.np-mobile-container').style.opacity = 1;
+                }, 20)
+            }, 500)
+        }
+    }
+})

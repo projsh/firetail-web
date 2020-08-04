@@ -2,10 +2,11 @@
 <html lang="en" class="dark firetail">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 maximum-scale=1.0, user-scalable=0">
     <link rel="stylesheet" href="app.css">
     <link rel="stylesheet" href="mobile.css">
-    <script src="vue.js"></script>
+    <script src="/frameworks/vue.js"></script>
+    <script src="/frameworks/vue-async-computed.js"></script>
     <link href="/assets/material/material-icons.css" rel="stylesheet">
     <title>Firetail Web</title>
 </head>
@@ -29,6 +30,10 @@
         </svg>
     </div>
     <div class="app">
+        <div class="mobile-top-bar">
+            <i class="material-icons-outlined #openMenu">menu</i>
+            <div class="ft-logo"></div>
+        </div>
         <div class="sidebar">
             <div class="ft-brand">
                 <div class="ft-logo"></div>
@@ -37,6 +42,18 @@
             <div class="temp-sidebar"></div>
         </div>
         <div class="np-top">
+            <div class="np-mobile-container">
+                <div class="np-mobile-btn" v-on:click="expand">
+                    <i class="material-icons-outlined">expand_less</i>
+                </div>
+                <div class="np-mobile-metadata" v-on:click="expand">
+                    <p class="song-title">{{title}}</p>
+                    <p class="song-artist">{{artist}}</p>
+                </div>
+                <div class="np-mobile-btn" v-on:click="playPause">
+                    <i class="material-icons-outlined">play_arrow</i>
+                </div>
+            </div>
             <div class="np-container">
                 <div class="controls-left">
                     <div class="media-controls">
@@ -48,6 +65,15 @@
                     </div>
                 </div>
                 <div class="controls-middle">
+                    <div class="mobile-top-btns">
+                        <div class="np-mobile-btn" v-on:click="hide">
+                            <i class="material-icons-outlined">expand_more</i>
+                        </div>
+                        <p>yeah!</p>
+                        <div class="np-mobile-btn">
+                            <i class="material-icons-outlined">more_horiz</i>
+                        </div>
+                    </div>
                     <div v-bind:style="bg" class="np-img"></div>
                     <div class="np-ctrls">
                         <div class="np-ctrl metadata">
@@ -64,6 +90,8 @@
         </div>
         <div class="main-ui">
             <div class="top-title">
+                <i class="material-icons-outlined" id="tabBackButton">arrow_back</i>
+                <div class="tab-album-art"></div>
                 <h1>{{title}}</h1>
             </div>
             <div class="tab-container"></div>
