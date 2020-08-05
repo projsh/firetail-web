@@ -123,6 +123,7 @@ let mainSongList = Vue.extend({
                 audio.addEventListener('play', playEvent);
                 audio.addEventListener('ended', endedEvent)
                 currentlyPlaying = true;
+                audio.addEventListener('timeupdate', onceTimeUpdate);
                 audio.addEventListener('timeupdate', timeUpdate);
             })
         },
@@ -192,8 +193,16 @@ if ('mediaSession' in navigator) {
     navigator.mediaSession.setActionHandler('nexttrack', mediaControls.skip);
 }
 
+let onceTimeUpdate = () => {
+    if (audio.duration != NaN) {
+        songTime.duration = timeFormat(audio.duration);
+        audio.removeEventListener('timeupdate', onceTimeUpdate);
+    }
+}
+
 let timeUpdate = () => {
     document.querySelector('.fill').style.width = (audio.currentTime / audio.duration) * 100 + '%';
+    songTime.current = timeFormat(audio.currentTime);
 }
 
 let sortArray = (array, sortBy) => {
@@ -307,15 +316,7 @@ let mousetouchmove = e => {
         }
         pBar = getP(e, seekBar);
         seekFillBar.style.width = pBar * 100 + '%';
-        minutes = Math.floor((pBar * audio.duration) / 60);
-        seconds = Math.floor((pBar * audio.duration) / 1);
-        while (seconds >= 60) {
-            seconds = seconds - 60;
-        }
-        if (seconds > -1 && seconds < 10) {
-            seconds = ('0' + seconds).slice(-2);
-        }
-        //document.querySelector('#songDurationTime').innerHTML = `${minutes}:${seconds}`
+        songTime.current = timeFormat(pBar * audio.duration);
     }
 }
 
@@ -352,6 +353,27 @@ window.addEventListener('mouseup', e => {
 window.addEventListener('touchend', e => {
     mousetouchup(e);
 });
+
+//song time
+
+let timeFormat = s => {
+    let min = Math.floor(s / 60);
+    let sec = Math.floor(s - (min * 60));
+    if (sec < 10){ 
+        sec = `0${sec}`;
+    }
+    return `${min}:${sec}`;
+}
+
+let songTime = new Vue({
+    el: '.song-timer',
+    data() {
+        return {
+            current: '-:--',
+            duration: '-:--'
+        }
+    }
+})
 
 let updateImg = new Vue({
     el: '.np-img',
