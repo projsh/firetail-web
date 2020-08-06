@@ -1,16 +1,28 @@
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1100px) {
+    .controls-left {
+        width: 30%;
+    }
+
+    .controls-right {
+        display: none;
+    }
+
+    .np-container {
+        flex-direction: row-reverse;
+    }
+    
+    .controls-middle {
+        width: 70%;
+    }
+}
+
+@media screen and (max-width: 945px) {
     .controls-left {
         transform: scale(0.75);
     }
 }
 
-@media screen and (max-width: 1100px) {
-    .controls-left {
-        visibility: hidden;
-    }
-}
-
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 710px) {
     .sidebar {
         transform: translateX(-240px);
         z-index: 4;
@@ -114,10 +126,6 @@
     .handle-hover {
         height: 10px !important;
         width: 10px !important;
-    }
-
-    .controls-right {
-        display: none;
     }
 
     .main-ui {

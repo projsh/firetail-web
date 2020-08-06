@@ -26,6 +26,7 @@ public class Database {
     public MongoDatabase db;
     public static MongoCollection<Document> songs;
     public static MongoCollection<Document> userSettings;
+    public static MongoCollection<Document> playlists;
     public static String dataDir;
     public static String imgDir;
     
@@ -35,6 +36,7 @@ public class Database {
         db = mongodb.getDatabase("firetailweb");
         songs = db.getCollection("songs");
         userSettings = db.getCollection("settings");
+        playlists = db.getCollection("playlists");
         try {
             dataDir = userSettings.find().first().getString("userDir");
             imgDir = userSettings.find().first().getString("imgDir");

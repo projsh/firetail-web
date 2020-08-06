@@ -1,15 +1,18 @@
 package xyz.projsh.firetailweb.api;
 
 import com.mongodb.client.FindIterable;
-import java.util.List;
-import java.io.IOException;
-import java.util.Arrays;
+import static com.mongodb.client.model.Filters.eq;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +23,7 @@ import xyz.projsh.firetailweb.FiretailWeb;
 @RequestMapping("/api")
 public class Api {
     
-    @GetMapping("/getAllSongs")
+    @GetMapping("/songs")
     public Set<GetSong> getAllSongs() {
         FindIterable<Document> songs = Database.songs.find();
         Set<GetSong> files = new HashSet<>();
@@ -30,7 +33,7 @@ public class Api {
         return files;
     }
     
-    @GetMapping("/getAllAlbums")
+    @GetMapping("/albums")
     public Set<AllAlbums> getAllAlbums() {
         FindIterable<Document> songs = Database.songs.find();
         Set<AllAlbums> albums = new HashSet<>();
@@ -55,7 +58,7 @@ public class Api {
         return albums;
     }
     
-    @GetMapping("/getAlbum")
+    @GetMapping("/albums/get")
     public Set<GetSong> getAlbum(@RequestParam String album) {
         FindIterable<Document> songs = Database.songs.find();
         Set<GetSong> files = new HashSet<>();
@@ -86,5 +89,51 @@ public class Api {
         restartThread.setDaemon(false);
         restartThread.start();
     }
+    
+    @PostMapping("/playlists/create")
+    public Set<Playlist> createPlaylist(@RequestBody UpdatePlaylist playlist) {
+        System.out.println(playlist.getName());
+        Document playlistDoc = new Document("name", playlist.getName())
+                .append("desc", playlist.getDesc())
+                .append("imgData", playlist.getImgData())
+                .append("songs", playlist.getSongs());
+        Database.playlists.insertOne(playlistDoc);
+        return getAllPlaylists();
+    }
+    
+    @GetMapping("/playlists")
+    public Set<Playlist> getAllPlaylists() {
+        FindIterable<Document> playlists = Database.playlists.find();
+        Set<Playlist> plist = new HashSet<>();
+        for (Document pl : playlists) {
+            plist.add(new Playlist(pl.getString("name"), pl.getString("desc"), pl.getString("imgData"), pl.getList("songs", GetSong.class), pl.get("_id").toString()));
+        }
+        return plist;
+    }
+    
+    @GetMapping("/playlists/names")
+    public List<PlaylistNames> getPlaylistNames() {
+        FindIterable<Document> playlists = Database.playlists.find();
+        List<PlaylistNames> pListNames = new ArrayList<>();
+        for (Document pl : playlists) {
+            pListNames.add(new PlaylistNames(pl.getString("name"), pl.get("_id").toString()));
+        }
+        return pListNames;
+    }
+    
+    @PostMapping("/playlists/update")
+    public UpdatePlaylist updatePlaylist(@RequestBody UpdatePlaylist playlist) {
+        Database.playlists.updateOne(eq("_id", new ObjectId(playlist.getId())), new Document("$set", new Document("name", playlist.getName())
+            .append("desc", playlist.getDesc())
+            .append("imgData", playlist.getImgData())
+            .append("songs", playlist.getSongs())));
+        return playlist;
+    }
+    
+    @GetMapping("/playlists/get")
+    public Playlist getPlaylist(@RequestParam String id) {
+        Document pl = Database.playlists.find(eq("_id", new ObjectId(id))).first();
+        return new Playlist(pl.getString("name"), pl.getString("desc"), pl.getString("imgData"), pl.getList("songs", GetSong.class), pl.get("_id").toString());
+    } 
     
 }
