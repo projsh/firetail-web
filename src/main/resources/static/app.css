@@ -64,6 +64,14 @@ html.firetail {
     display: none
 }
 
+::selection {
+    background: var(--hl-txt);
+}
+
+::-moz-selection {
+    background: var(--hl-txt);
+}
+
 /* Sidebar */
 .sidebar {
     width: 235px;
@@ -476,11 +484,11 @@ div.section {
     top: 85px;
 }
 
-.side-item:hover, .side-list-item:hover, .album-item:hover {
+.side-item:hover, .side-list-item:hover, .album-item:hover, .artist-item:hover {
     opacity: .65;
 }
 
-.side-item:active, .side-list-item:active, .album-item:active {
+.side-item:active, .side-list-item:active, .album-item:active, .artist-item:active {
     opacity: .35;
 }
 
@@ -558,7 +566,7 @@ i.missing-icon {
 }
 
 .tab-album-art {
-    margin: 0px 40px;
+    margin-right: 40px;
     height: 125px;
     width: 125px;
     background-color: var(--fg-bg);
@@ -573,15 +581,32 @@ i.missing-icon {
 .top-title i {
     font-size: 36px;
     display: none;
+    margin-right: 40px;
 }
 
-/* albums */
+/* albums & artists */
 
-.album-tab {
+.album-tab, .artist-tab {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     padding: 0px 35px;
+}
+
+.artist-item {
+    width: 160px;
+    height: 50px;
+    background: var(--fg-bg);
+    border-radius: 10px;
+    border: solid 2px var(--bd);
+    box-shadow: 0px 1px 5px rgba(0,0,0,.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0px 10px;
+    margin: 10px;
+    cursor: pointer;
 }
 
 .album-item {
@@ -610,8 +635,14 @@ i.missing-icon {
     pointer-events: none;
 }
 
-.album-info {
+.album-info, .artist-item p {
     pointer-events: none;
+}
+
+.artist-item p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .album-name {
@@ -827,6 +858,7 @@ i.missing-icon {
     outline-color: var(--hl-txt);
     font-size: 14px;
     width: 245px;
+    outline: none;
 }
 
 .popup-content textarea {
@@ -836,6 +868,10 @@ i.missing-icon {
 
 .popup-content input[type="text"]:not(:last-child), .popup-content textarea:not(:last-child) {
     margin-bottom: 20px;
+}
+
+.popup-content input[type="text"]:focus, .popup-content textarea:focus {
+    outline: solid 2px var(--hl-txt);
 }
 
 .input-label {
@@ -888,10 +924,11 @@ i.missing-icon {
     z-index: 10;
     min-width: 150px;
     height: auto;
-    background: var(--bg);
+    background: var(--fg-bg);
     border: 2px solid var(--bd);
     border-radius: 5px;
     box-shadow: 0px 1px 5px rgba(0,0,0,.15);
+    overflow: hidden;
 }
 
 .context-list {
@@ -900,21 +937,18 @@ i.missing-icon {
     flex-flow: column;
 }
 
-.context-list div:last-child {
-    margin-bottom: 5px;
-}
-
 .context-item {
     width: auto;
     height: 20px;
     line-height: 20px;
-    font-size: 12px;
-    padding: 5px 5px 0px 5px;
+    font-size: 14px;
+    padding: 7px 10px;
     vertical-align: middle;
+    cursor: pointer;
 }
 
 .context-item:hover {
-    background: var(--li-hv);
+    background: var(--hl);
 }
 
 .context-separator {

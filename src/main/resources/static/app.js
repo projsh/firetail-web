@@ -98,62 +98,16 @@ Vue.component('song-list', {
     </li>`,
     methods: {
         play(song, isTouch, newQueue, curView, evt) {
-            if (isTouch) {
-                if (!touch) {
-                    console.log(evt)
-                    this.highlight(evt)
-                    return;
-                }
-            }
-            if (!audio) {
-                audio = new Audio();
-            }
-            if (!curView) {
-                currentPlayingView = currentView;
-            }
-            currentSong = song;
-            audio.removeEventListener('timeupdate', timeUpdate);
-            audio.removeEventListener('pause', pauseEvent);
-            audio.removeEventListener('play', playEvent);
-            audio.removeEventListener('ended', endedEvent);
-            audio.src = `http://${hostnamePort}/audio/${song.fileName}`;
-            document.querySelector('.fill').style.width = '0%';
-            //audio.load();
-            mediaControls.playPauseIcon = 'pause'
-            titleArtist.title = song.title;
-            titleArtist.artist = song.artist;
-            mobileNp.title = song.title;
-            mobileNp.artist = song.artist;
-            let imgURL = `http://${hostnamePort}/img/${song.artist}${song.album}.jpg`;
-            fetch(imgURL).then(response => {
-                if (response.ok) {
-                    updateImg.updateBg(imgURL)
-                } else {
-                    updateImg.updateBg();
-                }
-            });
-            currentIndex = queue.indexOf(song);
-            this.updateActive();
-            audio.play().then(() => {
-                if (newQueue) {
-                    queue = [];
-                    mainSongListComp.songs.forEach(f => {
-                        queue.push(f);
-                    })
-                    currentIndex = queue.indexOf(song);
-                    this.updateActive();
-                }
-                updateMediaSession(song);
-                audio.addEventListener('pause', pauseEvent);
-                audio.addEventListener('play', playEvent);
-                audio.addEventListener('ended', endedEvent)
-                currentlyPlaying = true;
-                audio.addEventListener('timeupdate', onceTimeUpdate);
-                audio.addEventListener('timeupdate', timeUpdate);
-            })
+            mainSongListComp.play(song, isTouch, newQueue, curView, evt);
         },
         updateActive() {
             updateActive();
+        },
+        highlight(e, song) {
+            mainSongListComp.highlight(e, song);
+        },
+        ctxMenu(e) {
+            mainSongListComp.ctxMenu(e);
         },
         hover(evt) {
             if (evt.target.children[0]) {
@@ -166,77 +120,14 @@ Vue.component('song-list', {
             if (icon.textContent != 'volume_up') {
                 icon.style.opacity = 0;
             }
-        },
-        highlight(e) {
-            console.log(e)
-            let newClick = mainSongListComp.songs.indexOf(this.song);
-            let allElements = document.querySelectorAll('.results-link');
-            if (e.type != 'contextmenu' && !e.ctrlKey) {
-                document.querySelectorAll('.results-link').forEach(f => {
-                    f.classList.remove('highlight')
-                })
-            } else if (e.type == 'contextmenu' && highlightedSongs.indexOf(newClick) != -1) {
-                return;
-            } else if (!e.ctrlKey) {
-                document.querySelectorAll('.results-link').forEach(f => {
-                    f.classList.remove('highlight')
-                })
-            }
-            if (!e.ctrlKey) {
-                highlightedSongs = [];
-            }
-            if (!e.shiftKey) {
-                let index = highlightedSongs.indexOf(newClick);
-                if (index != -1) {
-                    highlightedSongs.splice(index);
-                    this.$el.classList.remove('highlight');
-                } else {
-                    highlightedSongs.push(newClick);
-                    this.$el.classList.add('highlight');
-                }
-                hlLastClick = mainSongListComp.songs.indexOf(this.song);
-            } else {
-                mainSongListComp.songs.forEach((item, index) => {
-                    if (hlLastClick < newClick) {
-                        if (index <= newClick && index >= hlLastClick) {
-                            highlightedSongs.push(index);
-                        }
-                    } else {
-                        if (index >= newClick && index <= hlLastClick) {
-                            highlightedSongs.push(index);
-                        }
-                    }
-                })
-                highlightedSongs.forEach(f => {
-                    allElements[f].classList.add('highlight');
-                });
-            }
-            newHighlight = [];
-            highlightedSongs.forEach(f => {
-                if (newHighlight.indexOf(f) == -1) {
-                    newHighlight.push(f);
-                }
-            });
-            highlightedSongs = newHighlight;
-        },
-        ctxMenu(e) {
-            e.preventDefault();
-            if (currentView == 'All Songs') {
-                openCtx(e, 'song', this);
-            }
-            if (currentView.startsWith('pl-')) {
-                openCtx(e, 'playlistSong', this.$vnode.key);
-            }
         }
     }
 })
 
 let updateActive = () => {
     try {
-        console.log("yoyoy")
         if (currentView == currentPlayingView) {
             let findSong = mainSongListComp.songs.indexOf(currentSong);
-            console.log(findSong)
             let all = document.querySelectorAll('.results-link');
             all.forEach(f => {
                 f.classList.remove('active');
@@ -273,8 +164,7 @@ let mainSongList = Vue.extend({
         play(song, isTouch, newQueue, curView, evt) {
             if (isTouch) {
                 if (!touch) {
-                    console.log(evt)
-                    highlight(evt)
+                    this.highlight(evt, song)
                     return;
                 }
             }
@@ -324,6 +214,66 @@ let mainSongList = Vue.extend({
                 audio.addEventListener('timeupdate', onceTimeUpdate);
                 audio.addEventListener('timeupdate', timeUpdate);
             })
+        },
+        highlight(e, song) {
+            let newClick = mainSongListComp.songs.indexOf(song);
+            let allElements = document.querySelectorAll('.results-link');
+            if (e.type != 'contextmenu' && !e.ctrlKey) {
+                document.querySelectorAll('.results-link').forEach(f => {
+                    f.classList.remove('highlight')
+                })
+            } else if (e.type == 'contextmenu' && highlightedSongs.indexOf(newClick) != -1) {
+                return;
+            } else if (!e.ctrlKey) {
+                document.querySelectorAll('.results-link').forEach(f => {
+                    f.classList.remove('highlight')
+                })
+            }
+            if (!e.ctrlKey) {
+                highlightedSongs = [];
+            }
+            if (!e.shiftKey) {
+                let index = highlightedSongs.indexOf(newClick);
+                if (index != -1) {
+                    highlightedSongs.splice(index, 1);
+                    e.target.classList.remove('highlight');
+                } else {
+                    highlightedSongs.push(newClick);
+                    e.target.classList.add('highlight');
+                }
+                hlLastClick = mainSongListComp.songs.indexOf(song);
+            } else {
+                mainSongListComp.songs.forEach((item, index) => {
+                    if (hlLastClick < newClick) {
+                        if (index <= newClick && index >= hlLastClick) {
+                            highlightedSongs.push(index);
+                        }
+                    } else {
+                        if (index >= newClick && index <= hlLastClick) {
+                            highlightedSongs.push(index);
+                        }
+                    }
+                })
+                highlightedSongs.forEach(f => {
+                    allElements[f].classList.add('highlight');
+                });
+            }
+            newHighlight = [];
+            highlightedSongs.forEach(f => {
+                if (newHighlight.indexOf(f) == -1) {
+                    newHighlight.push(f);
+                }
+            });
+            highlightedSongs = newHighlight;
+        },
+        ctxMenu(e) {
+            e.preventDefault();
+            if (currentView == 'All Songs') {
+                openCtx(e, 'song', this);
+            }
+            if (currentView.startsWith('pl-')) {
+                openCtx(e, 'playlistSong', this);
+            }
         }
     }
 });
@@ -685,6 +635,28 @@ let sidebar = new Vue({
                     mountedTab = albumTab;
                     currentView = "Albums"
                     break;
+                case "artistsTab":
+                    artist = new artistTab({
+                        data() {
+                            return {
+                                artistList: []
+                            }
+                        }
+                    });
+                    fetch(`http://${hostnamePort}/api/artists`).then(resp => {
+                        resp.json().then(artists => {
+                            sortArray(artists, "artist");
+                            console.log(artists)
+                            artists.forEach((f, i) => {
+                                console.log(f)
+                                artist.artistList.push({id: i, artist: f.artist});
+                            });
+                        })
+                    })
+                    artist.$mount('.tab-container');
+                    mountedTab = artistTab;
+                    currentView = "Artists"
+                    break;
                 default:
                     let missingTab = new noTab;
                     missingTab.$mount('.tab-container');
@@ -693,7 +665,7 @@ let sidebar = new Vue({
             }
             let indicator = document.querySelector('.active-indicator');
             indicator.style.height = evt.target.getBoundingClientRect().height + 'px';
-            indicator.style.top = evt.target.getBoundingClientRect().top + 'px';
+            indicator.style.top = evt.target.getBoundingClientRect().top + document.querySelector('.sidebar').scrollTop + 'px';
         },
         active(evt) {
 
@@ -704,7 +676,7 @@ let sidebar = new Vue({
 Vue.component('playlist-items', {
     props: ['plitem'],
     template: 
-    `<div class="side-list-item side-click" v-on:click="click($event)">
+    `<div v-on:contextmenu="ctxMenu($event)" class="side-list-item side-click" v-on:click="click($event)">
         <div>{{plitem.label}}</div>
     </div>`,
     methods: {
@@ -712,7 +684,6 @@ Vue.component('playlist-items', {
             document.querySelectorAll('.side-click').forEach(f => {
                 f.classList.remove('active');
             });
-            console.log(evt)
             evt.target.classList.add('active');
             tabName.title = this.plitem.label;
             tabName.hideButtons();
@@ -727,7 +698,6 @@ Vue.component('playlist-items', {
             });
             fetch(`http://${hostnamePort}/api/playlists/get?id=${this.plitem.id}`).then(resp => {
                 resp.json().then(pl => {
-                    console.log(pl);
                     pl.songs.forEach(f => {
                         allSongs.forEach(a => {
                             if (mainSongListComp.songs.indexOf(a) != -1) return;
@@ -738,13 +708,17 @@ Vue.component('playlist-items', {
                     })
                     mainSongListComp.$mount('.tab-container');
                     currentView = `pl-${this.plitem.label}`;
+                    tabName.showButtons(true, null, null, pl.imgData, false);
                     updateActive();
                     mountedTab = mainSongListComp;
                     let indicator = document.querySelector('.active-indicator');
                     indicator.style.height = evt.target.getBoundingClientRect().height + 'px';
-                    indicator.style.top = evt.target.getBoundingClientRect().top + 'px';
+                    indicator.style.top = evt.target.getBoundingClientRect().top + document.querySelector('.sidebar').scrollTop + 'px';
                 })
             });
+        },
+        ctxMenu(e) {
+            openCtx(e, 'playlist', this);
         }
     }
 });
@@ -760,7 +734,6 @@ let playlistItems = new Vue({
 
 fetch(`http://${hostnamePort}/api/playlists/names`).then(resp => {
     resp.json().then(playlists => {
-        console.log(playlists);
         playlists.forEach(f => {
             playlistItems.listItems.push({label: f.name, id: f.id});
         })
@@ -775,9 +748,11 @@ let tabName = new Vue({
         }
     },
     methods: {
-        async showButtons(showAlbumArt, album, artist) {
-            document.querySelector('#tabBackButton').style.display = 'block';
-            if (showAlbumArt) {
+        async showButtons(showAlbumArt, album, artist, dataurl, showBack) {
+            if (showBack) {
+                document.querySelector('#tabBackButton').style.display = 'block';
+            }
+            if (showAlbumArt && !dataurl) {
                 let img =  `http://${hostnamePort}/img/${artist}${album}.jpg`;
                 let finImg = `/assets/no_album.svg`;
                 let getImg = fetch(img).then(resp => {
@@ -787,6 +762,9 @@ let tabName = new Vue({
                 });
                 await getImg;
                 document.querySelector('.tab-album-art').style.backgroundImage = `url('${finImg}')`;
+                document.querySelector('.tab-album-art').style.display = 'block';
+            } else if (showAlbumArt) {
+                document.querySelector('.tab-album-art').style.backgroundImage = `url('${dataurl}')`;
                 document.querySelector('.tab-album-art').style.display = 'block';
             }
         },
@@ -883,7 +861,7 @@ Vue.component('album-items', {
                             }, 250)
                         }, 350)
                     });
-                    tabName.showButtons(true, album, artist);
+                    tabName.showButtons(true, album, artist, null, true);
                     tabName.title = album;
                     mainSongListComp.$mount('.tab-container');
                     currentView = `album-${album}`;
@@ -901,7 +879,7 @@ let albumTab = Vue.extend({
     template: 
     `<div class="tab-container">
         <div class="album-tab">
-            <album-items v-for="item in albumList" v-bind:album="item" v-bind:id="item.id"></album-items>
+            <album-items v-for="item in albumList" v-bind:album="item" v-bind:key="item.id"></album-items>
         </div>
     </div>`
 })
@@ -948,7 +926,7 @@ let mobileNpExpand = new Vue({
 })
 
 //popup
-let playlistImageEl;
+let playlistImageEl = "";
 
 let popup = {
     open(wpopup) {
@@ -958,11 +936,27 @@ let popup = {
                 playlistCreateMenu = new createPlaylist({
                     methods: {
                         create() {
-                            let img = "/assets/no_album.svg"
-                            if (playlistImageEl != "") {
-                                img = playlistImageEl;
+                            let plToSend = {
+                                name: this.puName,
+                                desc: this.puDesc,
+                                imgData: playlistImageEl,
+                                songs: []
                             }
-                            //createPlaylistWkr.postMessage([this.plName, app.getPath('userData'), img, this.plDesc]);
+                            fetch(`http://${hostnamePort}/api/playlists/create`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(plToSend)
+                            }).then(resp => {
+                                resp.json().then(playlists => {
+                                    playlistItems.listItems = [];
+                                    playlists.forEach(f => {
+                                        playlistItems.listItems.push({label: f.name, id: f.id});
+                                    })
+                                    popup.close();
+                                })
+                            })
                         }
                     },
                     data: {
@@ -974,6 +968,69 @@ let popup = {
                 playlistCreateMenu.$mount('.popup-content');
                 playlistImageEl = '';
                 break;
+            case "addPL":
+                ftpopup.title = 'Add to Playlist';
+                addPLex = new addPL({
+                    data: {
+                        plList: []
+                    },
+                    created() {
+                        this.plList = playlistItems.listItems;
+                    }
+                })
+                popup.mounted = addPLex;
+                addPLex.$mount('.popup-content');
+                break;
+            case "editPL":
+                ftpopup.title = 'Edit Playlist'
+                let editPL = new editPlaylist({
+                    data: {
+                        puName: 'Playlist Title',
+                        puDesc: 'Playlist Desc'
+                    },
+                    created() {
+                        fetch(`http://${hostnamePort}/api/playlists/get?id=${encodeURIComponent(itemClicked.plitem.id)}`).then(resp => {
+                            resp.json().then(json => {
+                                let pl = json;
+                                this.puName = pl.name;
+                                this.puDesc = pl.desc;
+                                if (pl.imgData != "") {
+                                    document.querySelector('.playlist-create-img').style.backgroundImage = `url('${pl.imgData}')`
+                                }
+                            })
+                        })
+                    },
+                    methods: {
+                        edit() {
+                            fetch(`http://${hostnamePort}/api/playlists/get?id=${encodeURIComponent(itemClicked.plitem.id)}`).then(resp => {
+                                resp.json().then(json => {
+                                    let pl = json;
+                                    pl.name = this.puName;
+                                    pl.desc = this.puDesc;
+                                    pl.imgData = playlistImageEl;
+                                    pl = JSON.stringify(pl);
+                                    fetch(`http://${hostnamePort}/api/playlists/update`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: pl
+                                    }).then(nextResp => {
+                                        nextResp.json().then(nextJson => {
+                                            playlistItems.listItems = [];
+                                            nextJson.forEach(f => {
+                                                playlistItems.listItems.push({label: f.name, id: f.id});
+                                            })
+                                            popup.close();
+                                        })
+                                    })
+                                })
+                            })
+                        }
+                    }
+                })
+                popup.mounted = editPL;
+                editPL.$mount('.popup-content');
         }
         document.querySelector('.popup').classList.remove('hidden');
         document.querySelector('.popup').classList.add('open');
@@ -991,6 +1048,16 @@ let popup = {
     },
     mounted: null
 }
+
+document.querySelector('#addPlaylistImage').addEventListener('change', (evt) => {
+    let reader = new FileReader();
+    reader.readAsDataURL(evt.target.files[0]);
+    console.log(evt.target.files)
+    reader.onload = (e) => {
+        playlistImageEl = e.target.result;
+        document.querySelector('.playlist-create-img').style.backgroundImage = `url('${e.target.result}')`
+    }
+})
 
 let ftpopup = new Vue({
     el: '.popup',
@@ -1036,7 +1103,7 @@ let createPlaylist = Vue.extend({
 
 let editPlaylist = Vue.extend({
     template: 
-    `<div class="panel-content">
+    `<div class="popup-content">
         <div class="playlist-create-flex">
             <div>
                 <label for="addPlaylistImage" class="playlist-image-label">Add image</label>
@@ -1044,9 +1111,9 @@ let editPlaylist = Vue.extend({
             </div>
             <div>
                 <div class="input-label">Title</div>
-                <input type="text" v-model="plName" @input="$emit('input', $event.target.value)" placeholder="My Playlist">
+                <input type="text" v-model="puName" @input="$emit('input', $event.target.value)" placeholder="My Playlist">
                 <div class="input-label">Description</div>
-                <textarea class="long-text" v-model="plDesc" @input="$emit('textarea', $event.target.value)" placeholder="Write a lovely description about your playlist here..."></textarea>
+                <textarea class="long-text" v-model="puDesc" @input="$emit('textarea', $event.target.value)" placeholder="Write a lovely description about your playlist here..."></textarea>
             </div>
         </div>
         <div class="button-right">
@@ -1063,13 +1130,20 @@ Vue.component('ctx-item', {
         click() {
             switch(this.list.id) {
                 case "addPlaylist":
-                    panel.open('addPL');
+                    popup.open('addPL');
                     break;
                 case "removePlaylist":
-                    
+                    fetch(`http://${hostnamePort}/api/playlists/delete?id=${encodeURIComponent(itemClicked.plitem.id)}`).then(resp => {
+                        resp.json().then(playlists => {
+                            playlistItems.listItems = [];
+                            playlists.forEach(f => {
+                                playlistItems.listItems.push({label: f.name, id: f.id});
+                            })
+                        })
+                    })
                     break;
                 case "editPlaylist":
-                    panel.open('editPL');
+                    popup.open('editPL');
                     break;
                 case "rmSongPlaylist":
                     
@@ -1118,6 +1192,7 @@ document.addEventListener('click', (e) => {
 })
 
 let openCtx = (e, type, item) => {
+    e.preventDefault();
     ctxMenu = document.querySelector('.context-menu');
     ctxMenu.style.display = 'block'
     if (e.pageX + ctxMenu.offsetWidth >= window.innerWidth) {
@@ -1144,3 +1219,103 @@ let openCtx = (e, type, item) => {
     ctxMenu.style.left = xPosition + 'px';
     ctxMenu.style.top = yPosition + 'px';
 }
+
+//addpl
+let addPL = Vue.extend({
+    template:
+    `<div class="popup-content">
+        <pl-list v-for="item in plList" v-bind:playlist="item" v-bind:key="item.id"></pl-list>
+    </div>`
+})
+
+Vue.component('pl-list', {
+    props: ['playlist'],
+    computed: {
+        bg() {
+            //if (this.playlist.image == '/assets/no_album.svg') {
+                return `background-image: url('/assets/no_album.svg')`;
+            //} else {
+                //return `background-image: url('http://${}/${this.playlist.id}.png')`;
+            //}
+        }
+    },
+    template:
+    `<div v-on:click="add" class="addPl-item">
+        <div class="addPl-img" v-bind:style="bg">
+        </div>
+        <span>{{playlist.label}}</span>
+    </div>`,
+    methods: {
+        add() {
+            fetch(`http://${hostnamePort}/api/playlists/get?id=${encodeURIComponent(this.playlist.id)}`).then(resp => {
+                resp.json().then(json => {
+                    let pl = json;
+                    highlightedSongs.forEach(f => {
+                        pl.songs.push(mainSongListComp.songs[f].id);
+                    });
+                    pl = JSON.stringify(pl);
+                    fetch(`http://${hostnamePort}/api/playlists/update`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: pl
+                    }).then(nextResp => {
+                        nextResp.json().then(nextJson => {
+                            popup.close();
+                        })
+                    })
+                })
+            })
+        }
+    }
+});
+
+//artists
+let artistTab = Vue.extend({
+    template:
+    `<div class="tab-container">
+        <div class="artist-tab">
+            <artist-items v-for="item in artistList" v-bind:artist="item" v-bind:key="item.id"></artist-items>
+        </div>
+    </div>`
+})
+
+Vue.component('artist-items', {
+    props: ['artist'],
+    template:
+    `<div class="artist-item" v-on:click="getArtist($event)">
+        <p>{{artist.artist}}</p>
+    </div>`,
+    methods: {
+        getArtist(evt) {
+            let artist = this.artist.artist;
+            mountedTab.$destroy;
+            document.querySelector('.tab-container').innerHTML = '';
+            mainSongListComp = new mainSongList({
+                data: {
+                    songs: []
+                }
+            });
+            fetch(`http://${hostnamePort}/api/artists/get?artist=${encodeURIComponent(artist)}`).then(resp => {
+                resp.json().then(async songs => {
+                    songs.forEach((f, i) => {
+                        if (f.title == null || f.artist == null || f.album == null || f.title == "" || f.artist == "" || f.album == "") {
+                            mainSongListComp.songs.push({id: f.id, title: f.fileName, artist: "Unknown Artist", album: "Unknown Album", fileName: f.fileName, dur: f.duration});
+                        } else {
+                            mainSongListComp.songs.push({id: f.id, title: f.title, artist: f.artist, album: f.album, fileName: f.fileName, dur: f.duration});
+                        }
+                        sortArray(mainSongListComp.songs, 'album');
+                    });
+                    mainSongListComp.$mount('.tab-container')
+                    currentView = `artist-${artist}`;
+                    tabName.title = artist;
+                    tabName.showButtons(false, null, null, null, true);
+                    updateActive();
+                    mountedTab = mainSongListComp;
+                })
+            })
+        }
+    }
+});
+

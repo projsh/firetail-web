@@ -7,10 +7,10 @@ public class Playlist {
     private final String name;
     private final String desc;
     private final String imgData;
-    private final List<GetSong> songs;
+    private final List<String> songs;
     private final String id;
     
-    public Playlist(String name, String desc, String imgData, List<GetSong> songs, String id) {
+    public Playlist(String name, String desc, String imgData, List<String> songs, String id) {
         this.name = name;
         this.desc = desc;
         this.imgData = imgData;
@@ -30,7 +30,7 @@ public class Playlist {
         return imgData;
     }
     
-    public List<GetSong> getSongs() {
+    public List<String> getSongs() {
         return songs;
     }
     

@@ -75,6 +75,48 @@ public class Api {
         return files;
     }
     
+    @GetMapping("/artists")
+    public Set<AllArtists> getAllArtists() {
+        FindIterable<Document> songs = Database.songs.find();
+        Set<AllArtists> artists = new HashSet<>();
+        Map<String, Boolean> foundAlbum = new HashMap<String, Boolean>();
+        for (Document song : songs) {
+            try {
+                if (!foundAlbum.get(song.getString("artist"))) {
+                    if (!song.getString("artist").equals(null)) {
+                        artists.add(new AllArtists(song.getString("artist")));
+                        foundAlbum.put(song.getString("album"), true);
+                    }
+                }
+            } catch(NullPointerException err) {
+                try {
+                    if (!song.getString("artist").equals(null)) {
+                        artists.add(new AllArtists(song.getString("artist")));
+                        foundAlbum.put(song.getString("artist"), true);
+                    }
+                } catch(NullPointerException err1) {};
+            }
+        }
+        return artists;
+    }
+    
+    @GetMapping("/artists/get")
+    public Set<GetSong> getArtist(@RequestParam String artist) {
+        FindIterable<Document> songs = Database.songs.find();
+        Set<GetSong> files = new HashSet<>();
+        for (Document song : songs) {
+            try {
+                if (!song.getString("artist").equals(null) && song.getString("artist").equals(artist)) {
+                    System.out.println(song.getString("artist"));
+                    files.add(new GetSong(song.getString("title"), song.getString("artist"),song.getString("album"), song.getString("fileName"), song.get("_id").toString(), song.getString("duration")));
+                }
+            } catch(NullPointerException err) {
+                //System.out.println(err.getMessage());
+            }
+        }
+        return files;
+    }
+    
     @GetMapping("/restart")
     public void restart() {
         Thread restartThread = new Thread(() -> {
@@ -106,7 +148,7 @@ public class Api {
         FindIterable<Document> playlists = Database.playlists.find();
         Set<Playlist> plist = new HashSet<>();
         for (Document pl : playlists) {
-            plist.add(new Playlist(pl.getString("name"), pl.getString("desc"), pl.getString("imgData"), pl.getList("songs", GetSong.class), pl.get("_id").toString()));
+            plist.add(new Playlist(pl.getString("name"), pl.getString("desc"), pl.getString("imgData"), pl.getList("songs", String.class), pl.get("_id").toString()));
         }
         return plist;
     }
@@ -122,18 +164,25 @@ public class Api {
     }
     
     @PostMapping("/playlists/update")
-    public UpdatePlaylist updatePlaylist(@RequestBody UpdatePlaylist playlist) {
+    public Set<Playlist> updatePlaylist(@RequestBody UpdatePlaylist playlist) {
         Database.playlists.updateOne(eq("_id", new ObjectId(playlist.getId())), new Document("$set", new Document("name", playlist.getName())
             .append("desc", playlist.getDesc())
             .append("imgData", playlist.getImgData())
             .append("songs", playlist.getSongs())));
-        return playlist;
+        return getAllPlaylists();
     }
     
     @GetMapping("/playlists/get")
     public Playlist getPlaylist(@RequestParam String id) {
         Document pl = Database.playlists.find(eq("_id", new ObjectId(id))).first();
-        return new Playlist(pl.getString("name"), pl.getString("desc"), pl.getString("imgData"), pl.getList("songs", GetSong.class), pl.get("_id").toString());
-    } 
+        return new Playlist(pl.getString("name"), pl.getString("desc"), pl.getString("imgData"), pl.getList("songs", String.class), pl.get("_id").toString());
+    }
+    
+    @GetMapping("/playlists/delete")
+    public Set<Playlist> deletePlaylist(@RequestParam String id) {
+        Document pl = Database.playlists.find(eq("_id", new ObjectId(id))).first();
+        Database.playlists.deleteOne(pl);
+        return getAllPlaylists();
+    }
     
 }
