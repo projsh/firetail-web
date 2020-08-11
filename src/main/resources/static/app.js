@@ -17,6 +17,64 @@ let titleArtist = new Vue({
     }
 });
 
+let htmlClass = document.querySelector('html').classList;
+
+let updateMode = scheme => {
+    let thing = document.querySelector('html').classList;
+    if (scheme == 'dark') {
+        thing.remove('light')
+        thing.add('dark');
+    } else {
+        thing.remove('dark');
+        thing.add('light');
+    }
+}
+
+if (!localStorage.getItem('theme')) {
+    localStorage.setItem('theme', 'system');
+}
+
+if (!localStorage.getItem('scheme')) {
+    localStorage.setItem('scheme', 'firetail');
+}
+
+switch(localStorage.getItem('scheme')) {
+    case "firetail":
+        htmlClass.add('firetail');
+        break;
+    case "purple":
+        htmlClass.add('purple');
+        break;
+    case "green":
+        htmlClass.add('green');
+        break;
+    default:
+        htmlClass.add('firetail');
+}
+
+if (localStorage.getItem('theme') == 'dark') {
+    updateMode('dark');
+} else if (localStorage.getItem('theme') == 'light') {
+    updateMode('light');
+}
+
+try {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && localStorage.getItem('theme') == 'system') {
+        updateMode('dark');
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches && localStorage.getItem('theme') == 'system') {
+        updateMode('light');
+    } else if (localStorage.getItem('theme') == 'system') {
+        updateMode('dark');
+    }
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        if (localStorage.getItem('theme') == 'system') {
+            updateMode(e.matches ? 'dark' : 'light');
+        }
+    })
+} catch(err) {}
+
+
 let touch = false;
 window.addEventListener('pointerover', evt => {
     if (evt.pointerType == 'touch') {
@@ -179,15 +237,14 @@ let mainSongList = Vue.extend({
             audio.removeEventListener('pause', pauseEvent);
             audio.removeEventListener('play', playEvent);
             audio.removeEventListener('ended', endedEvent);
-            audio.src = `http://${hostnamePort}/audio/${song.fileName}`;
+            audio.src = `http://${hostnamePort}/audio/${encodeURIComponent(song.fileName)}`;
             document.querySelector('.fill').style.width = '0%';
-            //audio.load();
             mediaControls.playPauseIcon = 'pause'
             titleArtist.title = song.title;
             titleArtist.artist = song.artist;
             mobileNp.title = song.title;
             mobileNp.artist = song.artist;
-            let imgURL = `http://${hostnamePort}/img/${song.artist}${song.album}.jpg`;
+            let imgURL = `http://${hostnamePort}/img/${encodeURIComponent(song.artist)}${encodeURIComponent(song.album)}.jpg`;
             fetch(imgURL).then(response => {
                 if (response.ok) {
                     updateImg.updateBg(imgURL)
@@ -368,7 +425,8 @@ fetch(`http://${hostnamePort}/api/songs`).then(resp => {
             queue.push(f);
             mainSongListComp.songs.push(f);
         });
-
+        tabName.count = mainSongListComp.songs.length;
+        tabName.type = 'songs'
         mainSongListComp.$mount('.tab-container');
     })
 });
@@ -519,49 +577,105 @@ let updateImg = new Vue({
     }
 });
 
-let updateMode = scheme => {
-    let thing = document.querySelector('html').classList;
-    if (scheme == 'dark') {
-        thing.remove('light')
-        thing.add('dark');
-    } else {
-        thing.remove('dark');
-        thing.add('light');
+let doAddSongs = async (evt, drag) => {
+    evt.preventDefault();
+    let files = evt.target.files;
+    if (drag) {
+        files = evt.dataTransfer.files;
     }
+    console.log(files.length)
+    Array.from(files).forEach((f, i) => {
+        addSong.uploadSongs.push({name: f.name, icon: 'cloud_queue', status: 'Waiting...'});
+    });
+    setTimeout(() => {
+        async.eachOfSeries(Array.from(files), async (f, i) => {
+            let waitDone = new Promise(resolve => {
+                console.log(`${i} |||| ${f}`)
+                addSong.uploadSongs[i].icon = 'autorenew';
+                document.querySelectorAll('.add-song-item')[i].classList.remove('flashing');
+                document.querySelectorAll('.add-song-item')[i].classList.add('spinning');
+                addSong.uploadSongs[i].status = 'Uploading...';
+                let reader = new FileReader();
+                reader.readAsArrayBuffer(files[i]);
+                reader.onload = (buffer => {
+                    fetch(`http://${hostnamePort}/api/songs/add`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'audio/mpeg',
+                            'Filename': encodeURIComponent(files[i].name)
+                        },
+                        body: buffer.target.result
+                    }).then(resp => {
+                        if (resp.ok) {
+                            console.log('ok!');
+                            document.querySelectorAll('.add-song-item')[i].classList.remove('spinning');
+                            document.querySelectorAll('.add-song-item')[i].classList.add('done');
+                            addSong.uploadSongs[i].icon = 'done';
+                            addSong.uploadSongs[i].status = 'Done';
+                            resolve();
+                        }
+                    })
+                })
+            });
+            await waitDone;
+            fetch(`http://${hostnamePort}/api/songs`).then(resp => {
+                resp.json().then(songs => {
+                    allSongs = [];
+                    songs.forEach((f, i) => {
+                        if (f.title == null || f.artist == null || f.album == null || f.title == "" || f.artist == "" || f.album == "") {
+                            allSongs.push({id: f.id, title: f.fileName, artist: "Unknown Artist", album: "Unknown Album", fileName: f.fileName, dur: f.duration});
+                        } else {
+                            allSongs.push({id: f.id, title: f.title, artist: f.artist, album: f.album, fileName: f.fileName, dur: f.duration});
+                        }
+                        sortArray(allSongs, 'artist');
+                    });
+                })
+            });
+            console.log('waited!');
+        })
+    }, 1000)
 }
 
-try {
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        updateMode('dark');
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-        updateMode('light');
-    } else {
-        updateMode('dark');
-    }
-
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        updateMode(e.matches ? 'dark' : 'light');
-    })
-} catch(err) {}
-
 //sidebar
-
 let currentActiveTab = 'allButton'
 
 let mountedTab = null;
+
+Vue.component('sidebar-items', {
+    props: ['sideitem'],
+    template:
+    `<div v-bind:class="{ active: activeC }" v-on:click="click($event, sideitem)" v-if="sideitem.type == 'item'" class="side-item side-click">
+        <i class="material-icons-outlined">{{ sideitem.icon }}</i>
+        <span>{{ sideitem.label }}</span>
+    </div>
+    <div v-else-if="sideitem.type == 'label'" class="side-label">{{sideitem.label}}</div>`,
+    computed: {
+        activeC() {
+            if (this.sideitem.label == 'All Songs') {
+                return true
+            }
+        }
+    },
+    mounted() {
+        if (this.sideitem.label == 'All Songs') {
+            let indicator = document.querySelector('.active-indicator');
+            indicator.style.height = this.$el.getBoundingClientRect().height + 'px';
+            indicator.style.top = this.$el.getBoundingClientRect().top + document.querySelector('.sidebar').scrollTop + 'px';
+        }
+    },
+    methods: {
+        click(e, sideItem) {
+            sidebar.click(e, sideItem);
+        }
+    }
+})
 
 let sidebar = new Vue({
     el: '.temp-sidebar',
     template: 
     `<div class="sidebar-wrap">
         <div class="active-indicator" style="top: 85px"></div>
-        <div v-for="item in sidebarItems" v-bind:sideitem="item" v-bind:id="item.id">
-            <div v-on:load="active($event)" :style="active" v-on:click="click($event, item)" v-if="item.type == 'item'" class="side-item side-click">
-                <i class="material-icons-outlined">{{ item.icon }}</i>
-                <span>{{ item.label }}</span>
-            </div>
-            <div v-else-if="item.type == 'label'" class="side-label">{{item.label}}</div>
-        </div>
+        <sidebar-items v-for="item in sidebarItems" v-bind:sideitem="item" v-bind:key="item.id"></sidebar-items>
     </div>`,
     data() {
         return {
@@ -574,8 +688,7 @@ let sidebar = new Vue({
                 {id: 'allTab', type: 'item', label: 'All Songs', icon: 'music_note'},
                 {id: 'artistsTab', type: 'item', label: 'Artists', icon: 'person'},
                 {id: 'albumsTab', type: 'item', label: 'Albums', icon: 'album'},
-                {id: 'playlistLabel', type: 'label', label: 'Playlists'},
-                //{id: 'playlistsList', type: 'list', items: [{id: 'test', label: 'test label'}]}
+                {id: 'playlistLabel', type: 'label', label: 'Playlists'}
             ]
         }
     },
@@ -601,11 +714,14 @@ let sidebar = new Vue({
                     allSongs.forEach(f => {
                         mainSongListComp.songs.push(f);
                     });
+                    tabName.showButtons(false, null, null, null, false, true);
                     mainSongListComp.$mount('.tab-container');
                     currentView = "All Songs";
                     if (currentIndex) {
                         updateActive();
                     }
+                    tabName.count = mainSongListComp.songs.length;
+                    tabName.type = 'songs'
                     mountedTab = mainSongListComp;
                     break;
                 case "homeTab":
@@ -622,15 +738,17 @@ let sidebar = new Vue({
                             }
                         }
                     });
-                    let usedArtists = [];
                     fetch(`http://${hostnamePort}/api/albums`).then(resp => {
                         resp.json().then(albums => {
                             sortArray(albums, "name");
                             albums.forEach((f, i) => {
                                 album.albumList.push({id: i, name: f.name, artist: f.artist});
                             });
+                            tabName.count = album.albumList.length;
+                            tabName.type = 'albums'
                         })
                     })
+                    tabName.showButtons(false, null, null, null, false, true);
                     album.$mount('.tab-container');
                     mountedTab = albumTab;
                     currentView = "Albums"
@@ -646,19 +764,48 @@ let sidebar = new Vue({
                     fetch(`http://${hostnamePort}/api/artists`).then(resp => {
                         resp.json().then(artists => {
                             sortArray(artists, "artist");
-                            console.log(artists)
                             artists.forEach((f, i) => {
-                                console.log(f)
                                 artist.artistList.push({id: i, artist: f.artist});
                             });
+                            tabName.count = artist.artistList.length;
+                            tabName.type = 'artists'
                         })
-                    })
+                    });
+                    tabName.showButtons(false, null, null, null, false, true);
                     artist.$mount('.tab-container');
                     mountedTab = artistTab;
                     currentView = "Artists"
                     break;
+                case "addSongsTab":
+                    addSong = new addSongs({
+                        data() {
+                            return {
+                                uploadSongs: []
+                            }
+                        }
+                    });
+                    tabName.showButtons(false, null, null, null, false, false);
+                    addSong.$mount('.tab-container');
+                    mountedTab = addSongs;
+                    currentView = "AddSongs";
+                    document.querySelector('.no-tab').ondragover = (evt) => {
+                        evt.preventDefault();
+                        document.querySelector('.no-tab').classList.add('drag');
+                    };
+                    document.querySelector('.no-tab').ondragleave = (evt) => {
+                        evt.preventDefault();
+                        document.querySelector('.no-tab').classList.remove('drag');
+                    };
+                    document.querySelector('.no-tab').ondrop = evt => {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        document.querySelector('.no-tab').classList.remove('drag');
+                        doAddSongs(evt, true);
+                    };
+                    break;
                 default:
                     let missingTab = new noTab;
+                    tabName.showButtons(false, null, null, null, false, false);
                     missingTab.$mount('.tab-container');
                     mountedTab = noTab;
                     currentView = "Unknown"
@@ -666,9 +813,6 @@ let sidebar = new Vue({
             let indicator = document.querySelector('.active-indicator');
             indicator.style.height = evt.target.getBoundingClientRect().height + 'px';
             indicator.style.top = evt.target.getBoundingClientRect().top + document.querySelector('.sidebar').scrollTop + 'px';
-        },
-        active(evt) {
-
         }
     }
 });
@@ -705,10 +849,12 @@ Vue.component('playlist-items', {
                                 mainSongListComp.songs.push(a);
                             }
                         })
-                    })
+                    });
                     mainSongListComp.$mount('.tab-container');
                     currentView = `pl-${this.plitem.label}`;
-                    tabName.showButtons(true, null, null, pl.imgData, false);
+                    tabName.showButtons(true, null, null, pl.imgData, false, true);
+                    tabName.count = mainSongListComp.songs.length;
+                    tabName.type = 'songs'
                     updateActive();
                     mountedTab = mainSongListComp;
                     let indicator = document.querySelector('.active-indicator');
@@ -744,13 +890,20 @@ let tabName = new Vue({
     el: '.top-title',
     data() {
         return {
-            title: 'Home'
+            title: 'All Songs',
+            count: 0,
+            type: 'songs'
         }
     },
     methods: {
-        async showButtons(showAlbumArt, album, artist, dataurl, showBack) {
+        async showButtons(showAlbumArt, album, artist, dataurl, showBack, showCount) {
             if (showBack) {
                 document.querySelector('#tabBackButton').style.display = 'block';
+            }
+            if (showCount) {
+                document.querySelector('.top-title p').style.display = 'block';
+            } else {
+                document.querySelector('.top-title p').style.display = 'none';
             }
             if (showAlbumArt && !dataurl) {
                 let img =  `http://${hostnamePort}/img/${artist}${album}.jpg`;
@@ -768,9 +921,14 @@ let tabName = new Vue({
                 document.querySelector('.tab-album-art').style.display = 'block';
             }
         },
-        hideButtons() {
+        hideButtons(showCount) {
             document.querySelector('#tabBackButton').style.display = 'none';
             document.querySelector('.tab-album-art').style.display = 'none';
+            if (showCount) {
+                document.querySelector('.top-title p').style.display = 'block';
+            } else {
+                document.querySelector('.top-title p').style.display = 'none';
+            }
         }
     }
 })
@@ -861,8 +1019,10 @@ Vue.component('album-items', {
                             }, 250)
                         }, 350)
                     });
-                    tabName.showButtons(true, album, artist, null, true);
+                    tabName.showButtons(true, album, artist, null, true, true);
                     tabName.title = album;
+                    tabName.count = mainSongListComp.songs.length;
+                    tabName.type = 'songs';
                     mainSongListComp.$mount('.tab-container');
                     currentView = `album-${album}`;
                     if (currentIndex) {
@@ -1307,10 +1467,12 @@ Vue.component('artist-items', {
                         }
                         sortArray(mainSongListComp.songs, 'album');
                     });
+                    tabName.count = mainSongListComp.songs.length;
+                    tabName.type = 'songs';
                     mainSongListComp.$mount('.tab-container')
                     currentView = `artist-${artist}`;
                     tabName.title = artist;
-                    tabName.showButtons(false, null, null, null, true);
+                    tabName.showButtons(false, null, null, null, true, true);
                     updateActive();
                     mountedTab = mainSongListComp;
                 })
@@ -1319,3 +1481,37 @@ Vue.component('artist-items', {
     }
 });
 
+//add songs
+document.querySelector('#addSongs').addEventListener('change', doAddSongs);
+
+Vue.component('adding-songs', {
+    props: ['file'],
+    template:
+    `<div class="add-song-item flashing">
+        <i class="material-icons-outlined">{{file.icon}}</i>
+        <div class="upload-text">
+            <p>{{file.name}}</p>
+            <div class="upload-status">{{file.status}}</div>
+        </div>
+    </div>`
+})
+
+let addSongs = Vue.extend({
+    template:
+    `<div class="tab-container">
+        <div class="add-songs-tab">
+        <div class="no-tab">
+            <div class="upload-glyph"></div>
+            <div class="text">
+                <h1>Drag your songs here!</h1>
+                <p>Songs uploaded here will be added to your library once completed.</p>
+            </div>
+        </div>
+            <label for="addSongs">
+                <i class="material-icons-outlined">cloud_upload</i>
+                <span>Choose Files</span>
+            </label>
+            <adding-songs v-for="item in uploadSongs" v-bind:file="item" v-bind:key="item.id"></adding-songs>
+        </div>
+    </div>`
+});

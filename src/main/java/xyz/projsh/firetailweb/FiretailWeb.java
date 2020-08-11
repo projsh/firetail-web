@@ -17,25 +17,41 @@ public class FiretailWeb {
     private static String[] args;
     private static ConfigurableApplicationContext context;
     
-    public static String versionString = "v0.2.0";
+    public static String versionString = "v0.4.0";
     
+    /*
+        This method in conjunction with restart() will restart the server by sending 
+        a GET request to /api/restart. Used if the user wishes to restart the server without
+        relaunching the application.
+    */
     public static void doRestart() {
         try {
             URL url = new URL("http://localhost:8080/api/restart");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             con.getInputStream();
-            System.out.println("lol");
         } catch (Exception ex) {
             Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
+    
+    /*
+        This method is called when a GET request is sent to /api/restart.
+        This will close the server context and create a new one, restarting the server
+        without restarting the server
+    */
     public static void restart() {
         context.close();
         FiretailWeb.context = SpringApplication.run(FiretailWeb.class, args);
     }
     
+    /*
+        The main method. This will connect and setup the MongoDB database,
+        create the server context & run, then creates the server app GUI.
+        If the launch arguments contain "-no-gui", the server app GUI will
+        not be created.
+    */
     public static void main(String[] args) {
         new Database();
 	FiretailWeb.args = args;

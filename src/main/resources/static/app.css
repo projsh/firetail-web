@@ -50,6 +50,20 @@ html.firetail {
     --gradient2: #ef9135;
 }
 
+html.purple {
+    --hl-txt: #c464f1;
+    --hl-op: #c464f11a;
+    --gradient1: #9a07df;
+    --gradient2: #c500bb;
+}
+
+html.green {
+    --hl-txt: #249133;
+    --hl-op: #2491331a;
+    --gradient1: #2b884e;
+    --gradient2: #13b913;
+}
+
 ::-webkit-scrollbar {
     width: 13px !important;
     background: var(--bg);
@@ -253,7 +267,6 @@ li.nohover:hover {
     top: 0;
     z-index: 3;
     background: var(--bg);
-    font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 2px;
     border-bottom: solid 1px var(--bd);
@@ -584,6 +597,12 @@ i.missing-icon {
     margin-right: 40px;
 }
 
+.top-title p {
+    margin: 0px;
+    margin-top: 10px;
+    opacity: .75;
+}
+
 /* albums & artists */
 
 .album-tab, .artist-tab {
@@ -782,7 +801,7 @@ i.missing-icon {
     transform: translateX(-10px);
 }
 
-.button {
+.button, label {
     padding: 10px 20px;
     color: var(--hl-txt);
     font-weight: bold;
@@ -794,20 +813,20 @@ i.missing-icon {
     align-items: center;
 }
 
-.button:hover {
+.button:hover, label:hover {
     background: var(--hl-op);
 }
 
-.button:active {
+.button:active, label:active {
     opacity: .8;
     background: var(--hl-op);
 }
 
-.button span {
+.button span, label span {
     margin-top: 2px
 }
 
-.button i {
+.button i, label i {
     margin-right: 10px;
 }
 
@@ -959,4 +978,101 @@ i.missing-icon {
 
 .highlight {
     background: var(--hl) !important;
+}
+
+/* Add songs */
+.add-songs-tab {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.add-song-item {
+    display: flex;
+    align-items: center;
+    width: 80%;
+    height: 50px;
+    border-bottom: solid 1px var(--bd);
+}
+
+.add-song-item p {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.upload-text {
+    margin: 15px;
+    width: 80%;
+}
+
+.upload-status {
+    font-size: 12px;
+    margin-top: 3px;
+    font-style: italic;
+    opacity: 0.6;
+}
+
+@keyframes icon-flash {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.2;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes icon-spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+.add-songs-tab label {
+    margin: 20px 0px;
+}
+
+.add-song-item.flashing i {
+    animation: icon-flash infinite linear 2s;
+}
+
+.add-song-item.spinning i {
+    animation: icon-spin infinite linear 1.5s;
+}
+
+.add-song-item.done i {
+    color: #67bd79;
+}
+
+.upload-glyph {
+    width: 175px;
+    height: 175px;
+    background: url('/assets/upload.svg') no-repeat center;
+    background-size: contain;
+    filter: brightness(var(--logo));
+    margin-right: 50px;
+}
+
+.add-songs-tab .no-tab {
+    padding: 20px;
+    border: solid 2px transparent;
+}
+
+.no-tab .text {
+    pointer-events: none;
+}
+
+.no-tab.drag {
+    border: dashed 2px var(--hl-txt);
+    background: var(--hl-op);
 }
