@@ -266,7 +266,8 @@ let mainSongList = Vue.extend({
                 updateMediaSession(song);
                 audio.addEventListener('pause', pauseEvent);
                 audio.addEventListener('play', playEvent);
-                audio.addEventListener('ended', endedEvent)
+                audio.addEventListener('ended', endedEvent);
+                audio.addEventListener('volumechange', volumechange);
                 currentlyPlaying = true;
                 audio.addEventListener('timeupdate', onceTimeUpdate);
                 audio.addEventListener('timeupdate', timeUpdate);
@@ -388,6 +389,18 @@ let timeUpdate = () => {
     songTime.current = timeFormat(audio.currentTime);
 }
 
+let volumechange = () => {
+    if (!volMouseDown && !audio.muted) {
+        volFillBar.style.width = audio.volume * 100 + '%';
+    }
+    if (audio.muted) {
+        volControl.muteIcon = 'volume_off'
+        volFillBar.style.width = '0%';
+    } else {
+        volControl.muteIcon = 'volume_up'
+    }
+}
+
 let sortArray = (array, sortBy) => {
     function compare(a, b) {
         if (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) return -1;
@@ -458,16 +471,54 @@ new Vue({
     el: '.seek-container'
 })
 
+let volControl = new Vue({
+    el: '.controls-right',
+    data() {
+        return {
+            muteIcon: 'volume_up'
+        }
+    },
+    methods: {
+        mute() {
+            if (audio.muted) {
+                this.muteIcon = 'volume_up'
+                audio.muted = false;
+            } else {
+                this.muteIcon = 'volume_off'
+                audio.muted = true;
+            }
+        },
+        down(e) {
+            mousetouchdown(e, true);
+        },
+        hover() {
+            document.querySelector('.handle-vol').classList.add('handle-hover');
+        },
+        leave() {
+            if (seekMouseDown) return;
+            if (touch) return;
+            document.querySelector('.handle-vol').classList.remove('handle-hover')
+        }
+    }
+});
+
 let seekBar;
 let seekBarWrapper;
 let seekFillBar;
+let volBar;
+let volBarWrapper;
+let volFillBar;
+
 setTimeout(() => {
     seekBar = document.querySelector('.seek-bar');
     seekBarWrapper = document.querySelector('#seekWrapper');
     seekFillBar = document.querySelector('.fill');
+    volBar = document.querySelector('.vol-bar');
+    volBarWrapper = document.querySelector('#volWrapper');
+    volFillBar = document.querySelector('.fill-vol');
 }, 50)
 let seekMouseDown = false;
-
+let volMouseDown = false;
 let clamp = (min, val, max) => {
     return Math.min(Math.max(min, val), max);
 }
@@ -478,46 +529,81 @@ let getP = (e, el) => {
     return pBar;
 }
 
-let mousetouchdown = e => {
+let mousetouchdown = (e, isVol) => {
     if (currentlyPlaying) {
         if (e.touches) {
             e = e.touches[0]
         }
-        seekMouseDown = true;
-        pBar = getP(e, seekBar);
-        seekFillBar.style.width = pBar * 100 + '%';
-        audio.removeEventListener('timeupdate', timeUpdate);
-        document.querySelector('.handle').classList.add('handle-hover')
+        if (isVol) {
+            pBar = getP(e, volBar);
+            if (audio.muted) {
+                audio.muted = false;
+            }
+            volMouseDown = true;
+            volFillBar.style.width = pBar * 100 + '%';
+            audio.volume = pBar;
+            document.querySelector('.handle-vol').classList.add('handle-hover');
+        } else {
+            pBar = getP(e, seekBar);
+            seekMouseDown = true;
+            seekFillBar.style.width = pBar * 100 + '%';
+            audio.removeEventListener('timeupdate', timeUpdate);
+            document.querySelector('.handle').classList.add('handle-hover');
+        }
     }
 }
 
 let mousetouchmove = e => {
-    if (!seekMouseDown) return;
+    if (!seekMouseDown && !volMouseDown) return;
     if (currentlyPlaying && seekMouseDown) {
         seekFillBar.style.transition = 'none';
         if (e.touches) {
             e = e.touches[0]
         }
         pBar = getP(e, seekBar);
+        if (audio.muted) {
+            audio.muted = false;
+        }
         seekFillBar.style.width = pBar * 100 + '%';
         songTime.current = timeFormat(pBar * audio.duration);
+    } else if(currentlyPlaying && volMouseDown) {
+        volFillBar.style.transition = 'none';
+        if (e.touches) {
+            e = e.touches[0]
+        }
+        pBar = getP(e, volBar);
+        volFillBar.style.width = pBar * 100 + '%';
+        audio.volume = pBar;
     }
 }
 
 let mousetouchup = e => {
-    seekFillBar.style.removeProperty('transition');
-    if (!seekMouseDown) return;
-    if (currentlyPlaying) {
+    if (!seekMouseDown && !volMouseDown) return;
+    if (currentlyPlaying && seekMouseDown) {
+        seekFillBar.style.removeProperty('transition');
         if (e.changedTouches) {
             e = e.changedTouches[0]
         }
         seekMouseDown = false;
         pBar = getP(e, seekBar);
+        if (audio.muted) {
+            audio.muted = false;
+        }
         seekFillBar.style.width = pBar * 100 + '%';
         audio.currentTime = pBar * audio.duration;
         audio.addEventListener('timeupdate', timeUpdate);
         if (touch) return;
         document.querySelector('.handle').classList.remove('handle-hover')
+    } else if (currentlyPlaying && volMouseDown) {
+        volFillBar.style.removeProperty('transition');
+        if (e.changedTouches) {
+            e = e.changedTouches[0]
+        }
+        volMouseDown = false;
+        pBar = getP(e, volBar);
+        volFillBar.style.width = pBar * 100 + '%';
+        if (touch) return;
+        document.querySelector('.handle-vol').classList.remove('handle-hover')
     }
 }
 
@@ -693,7 +779,7 @@ let sidebar = new Vue({
         }
     },
     methods: {
-        click(evt, item) {
+        async click(evt, item) {
             document.querySelectorAll('.side-click').forEach(f => {
                 f.classList.remove('active');
             });
@@ -802,6 +888,104 @@ let sidebar = new Vue({
                         document.querySelector('.no-tab').classList.remove('drag');
                         doAddSongs(evt, true);
                     };
+                    break;
+                case "settingsTab":
+                    let serverInfo = "";
+                    let getInfo = new Promise(resolve => {
+                        fetch(`http://${hostnamePort}/api/about`).then(resp => {
+                            resp.text().then(text => {
+                                serverInfo = text;
+                                resolve();
+                            })
+                        })
+                    })
+                    await getInfo;
+                    settings = new settingsTab({
+                        data() {
+                            return {
+                                settingsItems: [
+                                    {
+                                        id: 'generalLabel',
+                                        type: 'label',
+                                        label: 'General'
+                                    },
+                                    {
+                                        id: 'themeCombo',
+                                        type: 'combo',
+                                        label: 'Theme',
+                                        options: [
+                                            'system',
+                                            'light',
+                                            'dark'
+                                        ],
+                                        action: 'switchTheme'
+                                    },
+                                    {
+                                        id: 'schemeCombo',
+                                        type: 'combo',
+                                        label: 'Colour Scheme',
+                                        options: [
+                                            'firetail',
+                                            'purple',
+                                            'green'
+                                        ],
+                                        action: 'switchScheme'
+                                    },
+                                    {
+                                        id: 'resetLabel',
+                                        type: 'label',
+                                        label: 'Reset'
+                                    },
+                                    {
+                                        id: 'resetButtons',
+                                        type: 'custom',
+                                        html:
+                                        `<div class="button-group">
+                                            <div class="button">
+                                                <i class="material-icons-outlined">delete_forever</i>
+                                                <span>Remove Library</span>
+                                            </div>
+                                            <div class="button">
+                                                <i class="material-icons-outlined">refresh</i>
+                                                <span>Reset Settings</span>
+                                            </div>
+                                        </div>`
+                                    },
+                                    {
+                                        id: 'aboutLabel',
+                                        type: 'label',
+                                        label: 'About'
+                                    },
+                                    {
+                                        id: 'aboutFiretail',
+                                        type: 'custom',
+                                        html:
+                                        `<div class="about-firetail">
+                                            <div class="firetail-logo"></div>
+                                            <div class="about-text">
+                                                <h3>Firetail Web</h3>
+                                                <p>v1.0.0</p>
+                                                <p>Copyright &copy; 2020 projsh_</p>
+                                            </div>
+                                        </div>`
+                                    },
+                                    {
+                                        id: 'serverLabel',
+                                        type: 'label',
+                                        label: 'Server Information'
+                                    },
+                                    {
+                                        id: 'serverInfo',
+                                        type: 'custom',
+                                        html: `<p>${serverInfo}</p>`
+                                    }
+                                ]
+                            }
+                        }
+                    });
+                    settings.$mount('.tab-container');
+                    mountedTab = settingsTab;
+                    currentView = "Settings";
                     break;
                 default:
                     let missingTab = new noTab;
@@ -1500,18 +1684,103 @@ let addSongs = Vue.extend({
     template:
     `<div class="tab-container">
         <div class="add-songs-tab">
-        <div class="no-tab">
-            <div class="upload-glyph"></div>
-            <div class="text">
-                <h1>Drag your songs here!</h1>
-                <p>Songs uploaded here will be added to your library once completed.</p>
+            <div class="no-tab">
+                <div class="upload-glyph"></div>
+                <div class="text">
+                    <h1>Drag your songs here!</h1>
+                    <p>Songs uploaded here will be added to your library once completed.</p>
+                </div>
+            </div>
+                <label for="addSongs" class="button">
+                    <i class="material-icons-outlined">cloud_upload</i>
+                    <span>Choose Files</span>
+                </label>
+                <adding-songs v-for="item in uploadSongs" v-bind:file="item" v-bind:key="item.id"></adding-songs>
             </div>
         </div>
-            <label for="addSongs">
-                <i class="material-icons-outlined">cloud_upload</i>
-                <span>Choose Files</span>
+    </div>`
+});
+
+//settings tab
+Vue.component('settings-tab', {
+    props: ['settingsItem'],
+    template:
+    `<div class="settings-items-container">
+        <h2 v-if="settingsItem.type == 'label'">{{settingsItem.label}}</h2>
+        <div v-else-if="settingsItem.type == 'combo'" class="settings-item combo">
+            <p>{{settingsItem.label}}</p>
+            <select v-on:change="click(settingsItem.action, $event.target.value)">
+                <option v-for="item in settingsItem.options" v-bind:selected="getSetting(settingsItem.id, item)">{{item}}</option>
+            </select>
+        </div>
+        <div v-else-if="settingsItem.type == 'toggle'" class="settings-item toggle">
+            <p>{{settingsItem.label}}</p>
+            <label class="switch">
+                <input v-on:change="click(settingsItem.action, $event.target.checked)" v-bind:selected="getSetting(settingsItem.id)" type="checkbox">
+                <span class="switch-slider round"></span>
             </label>
-            <adding-songs v-for="item in uploadSongs" v-bind:file="item" v-bind:key="item.id"></adding-songs>
+        </div>
+        <div v-else-if="settingsItem.type == 'custom'" class="custom-html" v-html="settingsItem.html"></div>
+    </div>`,
+    methods: {
+        getSetting(id, data) {
+            switch(id) {
+                case "themeCombo":
+                    if (data == localStorage.getItem('theme')) return true;
+                    break;
+                case "schemeCombo":
+                    if (data == localStorage.getItem('scheme')) return true;
+                    break;
+            }
+        },
+        click(action, data) {
+            switch(action) {
+                case "switchTheme":
+                    localStorage.setItem('theme', data);
+                    if (localStorage.getItem('theme') == 'dark') {
+                        updateMode('dark');
+                    } else if (localStorage.getItem('theme') == 'light') {
+                        updateMode('light');
+                    } else {
+                        try {
+                            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && localStorage.getItem('theme') == 'system') {
+                                updateMode('dark');
+                            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches && localStorage.getItem('theme') == 'system') {
+                                updateMode('light');
+                            }
+                        } catch(err) {
+                            updateMode('dark');
+                        }
+                    }
+                    break;
+                case "switchScheme":
+                    htmlClass.remove(localStorage.getItem('scheme'));
+                    localStorage.setItem('scheme', data);
+                    switch(localStorage.getItem('scheme')) {
+                        case "firetail":
+                            htmlClass.add('firetail');
+                            break;
+                        case "purple":
+                            htmlClass.add('purple');
+                            break;
+                        case "green":
+                            htmlClass.add('green');
+                            break;
+                        default:
+                            htmlClass.add('firetail');
+                    }
+            }
+        }
+    }
+})
+
+let settingsTab = Vue.extend({
+    template:
+    `<div class="tab-container">
+        <div class="settings-tab">
+            <div class="settings-tab-spacer">
+                <settings-tab v-for="item in settingsItems" v-bind:settingsItem="item" v-bind:key="item.id"></settings-tab>
+            </div>
         </div>
     </div>`
 });

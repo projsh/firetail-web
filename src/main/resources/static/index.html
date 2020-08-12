@@ -116,7 +116,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="controls-right"></div>
+                <div class="controls-right">
+                    <div class="right-container">
+                        <i v-on:click="mute" class="material-icons-outlined">{{muteIcon}}</i>
+                        <div id="volWrapper" v-on:mousedown="down" v-on:touchstart="down" v-on:mouseover="hover" v-on:mouseleave="leave" class="vol-wrapper">
+                            <div class="vol-bar">
+                                <div class="fill-vol"></div>
+                                <div class="handle-vol"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="main-ui">

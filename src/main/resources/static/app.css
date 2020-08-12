@@ -41,6 +41,7 @@ html.light {
     --li-hv: #dddddd;
     --logo: 0.25;
     --switch: #cccccc;
+    --hl: #cecece;
 }
 
 html.firetail {
@@ -313,6 +314,18 @@ div.section {
     height: 100%;
 }
 
+.right-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.right-container i {
+    margin-right: 10px;
+    cursor: pointer;
+}
+
 .np-ctrls {
     display: flex;
     flex-direction: column;
@@ -353,13 +366,19 @@ div.section {
     padding: 7px 0;
 }
 
-.seek-bar {
+.seek-bar, .vol-bar {
     width: 100%;
     height: 4px;
     background: var(--bd);
     display: flex;
     align-items: center;
     border-radius: 10px;
+}
+
+.vol-wrapper {
+    height: 4px;
+    width: 30%;
+    padding: 7px;
 }
 
 .song-timer {
@@ -375,15 +394,19 @@ div.section {
     justify-content: center;
 }
 
-.fill {
+.fill, .fill-vol {
     height: 4px;
     background: linear-gradient(to right, var(--gradient1), var(--gradient2));
     transition: cubic-bezier(0, 1, 0.35, 1) .25s;
-    width: 50%;
+    width: 0%;
     border-radius: 10px;
 }
 
-.handle {
+.fill-vol {
+    width: 100%;
+}
+
+.handle, .handle-vol {
     width: 0px;
     height: 0px;
     background: var(--gradient2);
@@ -497,11 +520,11 @@ div.section {
     top: 85px;
 }
 
-.side-item:hover, .side-list-item:hover, .album-item:hover, .artist-item:hover {
+.side-item:hover, .side-list-item:hover, .album-item:hover, .artist-item:hover, .right-container i:hover {
     opacity: .65;
 }
 
-.side-item:active, .side-list-item:active, .album-item:active, .artist-item:active {
+.side-item:active, .side-list-item:active, .album-item:active, .artist-item:active, .right-container i:active {
     opacity: .35;
 }
 
@@ -584,7 +607,7 @@ i.missing-icon {
     width: 125px;
     background-color: var(--fg-bg);
     background-image: url('assets/no_album.svg');
-    background-size: contain;
+    background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
     border-radius: 10px;
@@ -801,7 +824,7 @@ i.missing-icon {
     transform: translateX(-10px);
 }
 
-.button, label {
+.button {
     padding: 10px 20px;
     color: var(--hl-txt);
     font-weight: bold;
@@ -813,20 +836,20 @@ i.missing-icon {
     align-items: center;
 }
 
-.button:hover, label:hover {
+.button:hover {
     background: var(--hl-op);
 }
 
-.button:active, label:active {
+.button:active {
     opacity: .8;
     background: var(--hl-op);
 }
 
-.button span, label span {
+.button span {
     margin-top: 2px
 }
 
-.button i, label i {
+.button i {
     margin-right: 10px;
 }
 
@@ -1075,4 +1098,131 @@ i.missing-icon {
 .no-tab.drag {
     border: dashed 2px var(--hl-txt);
     background: var(--hl-op);
+}
+
+/* Settings tab */
+.settings-tab {
+    padding: 0px 40px 40px 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.settings-tab-spacer {
+    width: 100%;
+    max-width: 900px;
+}
+
+.settings-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.settings-item select {
+    width: 165px;
+    background: var(--fg-bg);
+    color: var(--text);
+    font-family: Inter;
+    border: solid 1px var(--bd);
+    padding: 5px;
+    border-radius: 5px;
+    box-sizing: content-box;
+    text-transform: capitalize;
+}
+
+.settings-items-container h2 {
+    border-bottom: solid 1px var(--bd);
+    padding-bottom: 15px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    min-width: 45px;
+    min-height: 20px;
+    transition: .2s;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: .2s;
+    border: solid 2px var(--bd);
+}
+
+.switch-slider:before {
+    position: absolute;
+    content: "";
+    min-height: 10px;
+    min-width: 10px;
+    left: 4px;
+    bottom: 4px;
+    transition: .2s;
+    transform: translate(-1px, 1px);
+    border: solid 2px var(--text);
+    box-sizing: border-box;
+}
+
+input:checked + .switch-slider {
+    background: var(--hl-op);
+    border: solid 2px var(--hl-txt);
+}
+
+input:checked + .switch-slider:before {
+    transform: translate(24px, 1px);
+    background: var(--hl-txt);
+    border: solid 2px var(--hl-txt);
+    box-sizing: border-box;
+    border-radius: 10px;
+}
+
+.switch-slider.round {
+    border-radius: 34px;
+}
+  
+.switch-slider.round:before {
+    border-radius: 50%;
+}
+
+.about-firetail {
+    display: flex;
+    align-items: center;
+    padding: 10px 0px;
+}
+
+.firetail-logo {
+    width: 85px;
+    height: 85px;
+    background-image: url(/assets/firetail.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+}
+
+.about-text {
+    text-indent: 25px;
+}
+
+.about-text p {
+    margin: 10px 0px;
+    font-size: 14px;
+}
+
+.about-text h3 {
+    font-size: 24px;
+    margin: 10px 0px;
+}
+
+.button-group {
+    display: flex;
 }

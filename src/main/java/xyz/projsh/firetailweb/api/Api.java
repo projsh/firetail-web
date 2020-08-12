@@ -298,4 +298,13 @@ public class Api {
         return getAllPlaylists();
     }
     
+    @GetMapping("/about")
+    public String about() {
+        String os = System.getProperty("os.name");
+        String osVer = System.getProperty("os.version");
+        String javaVer = System.getProperty("java.version");
+        String username = System.getProperty("user.name");
+        return String.format("Operating System: %s<br>Version: %s<br>Java SE Version: %s<br>Server Username: %s", os, osVer, javaVer, username);
+    }
+    
 }

@@ -57,7 +57,7 @@ public class FiretailWeb {
 	FiretailWeb.args = args;
         FiretailWeb.context = SpringApplication.run(FiretailWeb.class, args);
 	System.setProperty("java.awt.headless", "false");
-        System.out.println(args.length);
+        System.getProperties().list(System.out);
 	if (args.length > 0) {
             if (args[0].equals("-no-gui")) {
                 
