@@ -4,15 +4,11 @@ import java.util.List;
 
 public class UpdatePlaylist {
     
-    private final String name;
-    private final String desc;
-    private final String imgData;
-    private final List<String> songs;
-    private final String id;
-    
-    public UpdatePlaylist() {
-        super();
-    }
+    private String name;
+    private String desc;
+    private String imgData;
+    private List<String> songs;
+    private String id;
     
     public String getName() {
         return name;
