@@ -17,7 +17,7 @@ public class FiretailWeb {
     private static String[] args;
     private static ConfigurableApplicationContext context;
     
-    public static String versionString = "v0.4.0";
+    public static String versionString = "v1.0.0";
     
     /*
         This method in conjunction with restart() will restart the server by sending 

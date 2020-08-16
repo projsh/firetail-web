@@ -65,7 +65,7 @@
             </div>
             <div v-on:click="open" class="add-playlist">
                 <i class="material-icons-outlined">playlist_add</i>
-                <span style="margin-left: 10px">Add Playlist</span>
+                <span style="margin-left: 10px">New Playlist</span>
             </div>
         </div>
         <div class="np-top">
@@ -131,7 +131,7 @@
         </div>
         <div class="main-ui">
             <div class="top-title">
-                <i class="material-icons-outlined" id="tabBackButton">arrow_back</i>
+                <i class="material-icons-outlined" id="tabBackButton" style="cursor: pointer" v-on:click="backBtn">arrow_back</i>
                 <div class="tab-album-art"></div>
                 <div>
                     <h1>{{title}}</h1>

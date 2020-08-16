@@ -16,6 +16,7 @@ body {
     color: var(--text);
     font-family: 'Inter', 'Overpass', 'Dosis', Arial, Helvetica, sans-serif !important;
     user-select: none;
+    -webkit-user-select: none;
 }
 
 html.dark {
@@ -520,11 +521,11 @@ div.section {
     top: 85px;
 }
 
-.side-item:hover, .side-list-item:hover, .album-item:hover, .artist-item:hover, .right-container i:hover {
+.side-item:hover, .side-list-item:hover, .album-item:hover, .artist-item:hover, .right-container i:hover, #tabBackButton:hover {
     opacity: .65;
 }
 
-.side-item:active, .side-list-item:active, .album-item:active, .artist-item:active, .right-container i:active {
+.side-item:active, .side-list-item:active, .album-item:active, .artist-item:active, .right-container i:active, #tabBackButton:active {
     opacity: .35;
 }
 
@@ -551,6 +552,7 @@ div.section {
     background: var(--fg-bg-op);
     border-top: solid 1px var(--bd);
     backdrop-filter: saturate(50%) blur(20px);
+    -webkit-backdrop-filter: saturate(50%) blur(20px);
 }
 
 .playlist-items-container {
@@ -560,12 +562,6 @@ div.section {
 @media (hover: none) {
     li:hover {
         background: none;
-    }
-}
-
-@media (backdrop-filter: none) {
-    .np-top {
-        background: var(--fg-bg) !important;
     }
 }
 
@@ -717,7 +713,8 @@ i.missing-icon {
     align-items: center;
     opacity: 0;
     pointer-events: none;
-    backdrop-filter: blur(5px);
+    backdrop-filter: saturate(50%) blur(10px);
+    -webkit-backdrop-filter: saturate(50%) blur(10px);
 }
 
 .popup.open {
@@ -984,9 +981,14 @@ i.missing-icon {
     height: 20px;
     line-height: 20px;
     font-size: 14px;
-    padding: 7px 10px;
-    vertical-align: middle;
+    padding: 12px 15px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.context-item span {
+    text-indent: 15px;
 }
 
 .context-item:hover {
@@ -1075,6 +1077,10 @@ i.missing-icon {
 
 .add-song-item.done i {
     color: #67bd79;
+}
+
+.add-song-item.bad i {
+    color: #ff4242;
 }
 
 .upload-glyph {
@@ -1225,4 +1231,35 @@ input:checked + .switch-slider:before {
 
 .button-group {
     display: flex;
+}
+
+.search-query {
+    margin: 0px 30px 20px;
+}
+
+.search-query:focus {
+    position: sticky;
+    top: 100px;
+    z-index: 2;
+}
+
+.search-input {
+    display: flex;
+    align-items: center;
+    background: var(--fg-bg);
+    border-radius: 10px;
+    padding: 10px 15px;
+    box-shadow: 0px 2px 5px rgba(0,0,0,.15);
+    border: solid 1px var(--bd);
+}
+
+.search-input input {
+    border: none;
+    background: none;
+    text-indent: 10px;
+    font-size: 16px;
+    font-family: Inter;
+    width: 100%;
+    outline: none;
+    color: var(--text);
 }

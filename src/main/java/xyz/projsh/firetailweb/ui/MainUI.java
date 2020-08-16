@@ -194,7 +194,6 @@ public class MainUI extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
         ftIcon = new javax.swing.JLabel();
         verLabel = new javax.swing.JLabel();
         exitButton = new javax.swing.JButton();
@@ -346,12 +345,6 @@ public class MainUI extends javax.swing.JFrame {
         jLabel2.setText("Copyright © 2020 projsh_");
         jLabel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 15, 5, 15));
 
-        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel3.setText("<html>WARNING: This project is incomplete and is not designed for everyday use. Use at your own risk.</html>");
-        jLabel3.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        jLabel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 15, 0, 15));
-        jLabel3.setName(""); // NOI18N
-
         ftIcon.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 0));
 
         verLabel.setText("v0.0.0");
@@ -370,10 +363,9 @@ public class MainUI extends javax.swing.JFrame {
                         .addComponent(verLabel)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 446, Short.MAX_VALUE)
                         .addGap(48, 48, 48))
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -381,18 +373,14 @@ public class MainUI extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(ftIcon)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(ftIcon)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(verLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel2)
-                        .addGap(9, 9, 9)
-                        .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addComponent(jLabel2)))
+                .addContainerGap(159, Short.MAX_VALUE))
         );
 
         mainTabPane.addTab("About", jPanel3);
@@ -508,7 +496,6 @@ public class MainUI extends javax.swing.JFrame {
     private javax.swing.JLabel ipString;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;

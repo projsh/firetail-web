@@ -3,7 +3,6 @@ package xyz.projsh.firetailweb.api;
 import com.mongodb.client.FindIterable;
 import static com.mongodb.client.model.Filters.eq;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -52,6 +51,24 @@ public class Api {
         return files;
     }
     
+    @GetMapping("/songs/search")
+    public Set<GetSong> searchSongs(@RequestParam String query) {
+        query = URLDecoder.decode(query, StandardCharsets.UTF_8);
+        FindIterable<Document> songs = Database.songs.find();
+        Set<GetSong> files = new HashSet<>();
+        query = query.toLowerCase();
+        for (Document song : songs) {
+            try {
+                 if (song.getString("title").toLowerCase().contains(query) || song.getString("artist").toLowerCase().contains(query) || song.getString("album").toLowerCase().contains(query) || song.getString("fileName").toLowerCase().contains(query)) {
+                     files.add(new GetSong(song.getString("title"), song.getString("artist"),song.getString("album"), song.getString("fileName"), song.get("_id").toString(), song.getString("duration")));
+                 }
+            } catch(NullPointerException err) {
+
+            }
+        }
+        return files;
+    }
+    
     @PostMapping("/songs/add")
     public byte[] addSong(@RequestBody byte[] song, @RequestHeader("Filename") String filename) {
         filename = URLDecoder.decode(filename, StandardCharsets.UTF_8);
@@ -73,6 +90,15 @@ public class Api {
             return new byte[] {};
         }
         return song;
+    }
+    
+    @PostMapping("/songs/delete")
+    public Set<GetSong> deleteSong(@RequestBody String[] ids) {
+        for (String id : ids) {
+            Document song = Database.songs.find(eq("_id", new ObjectId(id))).first();
+            Database.songs.deleteOne(song);
+        }
+        return getAllSongs();
     }
     
     /*
@@ -304,6 +330,9 @@ public class Api {
         String osVer = System.getProperty("os.version");
         String javaVer = System.getProperty("java.version");
         String username = System.getProperty("user.name");
+        if (os.equals("Mac OS X")) {
+            os = "macOS";
+        }
         return String.format("Operating System: %s<br>Version: %s<br>Java SE Version: %s<br>Server Username: %s", os, osVer, javaVer, username);
     }
     
