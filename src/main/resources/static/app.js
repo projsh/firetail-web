@@ -7,6 +7,7 @@ let currentView = "All Songs";
 let currentPlayingView = "All Songs";
 let currentSong;
 
+//this is for the now playing information like song title and artist
 let titleArtist = new Vue({
     el: '.np-ctrl.metadata',
     data() {
@@ -17,16 +18,18 @@ let titleArtist = new Vue({
     }
 });
 
+//the following is for theming the app so it will handle things like setting them theme
+//in local storage and getting it.
+//it will also handle setting the theme based off the system theme
 let htmlClass = document.querySelector('html').classList;
 
 let updateMode = scheme => {
-    let thing = document.querySelector('html').classList;
     if (scheme == 'dark') {
-        thing.remove('light')
-        thing.add('dark');
+        htmlClass.remove('light')
+        htmlClass.add('dark');
     } else {
-        thing.remove('dark');
-        thing.add('light');
+        htmlClass.remove('dark');
+        htmlClass.add('light');
     }
 }
 
@@ -58,6 +61,7 @@ if (localStorage.getItem('theme') == 'dark') {
     updateMode('light');
 }
 
+//this is the part that handles auto switching the theme based on system theme
 try {
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && localStorage.getItem('theme') == 'system') {
         updateMode('dark');
@@ -74,7 +78,8 @@ try {
     })
 } catch(err) {}
 
-
+//handles touch vs mouse stuff so when the mouse is moved remove the handle to seekbar
+//if touch add the handle
 let touch = false;
 window.addEventListener('pointerover', evt => {
     if (evt.pointerType == 'touch') {
@@ -86,10 +91,12 @@ window.addEventListener('pointerover', evt => {
     }
 });
 
+//simply shuffles arrays
 let shuffle = (array) => {
     return array.sort(() => Math.random() - 0.5);
 }
 
+//handles the media controls on the top left, next to the seekbar and song information
 let mediaControls = new Vue({
     el: '.media-controls',
     data() {
@@ -150,6 +157,7 @@ let mediaControls = new Vue({
     }
 })
 
+//this is the song list component. this is what is displayed the most. 
 Vue.component('song-list', {
     props: ['song'],
     template:
@@ -273,6 +281,7 @@ Vue.component('song-list', {
     }
 })
 
+//handles updating the active song so it is highlighted
 let updateActive = () => {
     try {
         if (currentView == currentPlayingView) {
@@ -298,6 +307,7 @@ let updateActive = () => {
     }
 }
 
+//this is the song list container. this contains the search box and column title
 let mainSongList = Vue.extend({
     template:
     `<div class="tab-container">
@@ -479,6 +489,7 @@ let mainSongList = Vue.extend({
     }
 });
 
+//the following functions are used for events such as audio pause, play and ended
 let pauseEvent = () => {
     mediaControls.playPauseIcon = 'play_arrow';
 }
@@ -494,30 +505,6 @@ let endedEvent = () => {
     } else {
         mediaControls.skip();
     }
-}
-
-let updateMediaSession = (song) => {
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: song.title,
-            artist: song.artist,
-            album: song.album,
-            artwork: [{src: `http://${hostnamePort}/img/${song.artist}${song.album}.jpg`, sizes: '512x512', type: 'image/jpeg'}]
-        })
-        if ('setPositionState' in navigator.mediaSession) {
-            navigator.mediaSession.setPositionState({
-                duration: audio.duration,
-                playbackRate: audio.playbackRate,
-                position: audio.currentTime
-            });
-        }
-    }
-
-}
-
-if ('mediaSession' in navigator) {
-    navigator.mediaSession.setActionHandler('previoustrack', mediaControls.prev);
-    navigator.mediaSession.setActionHandler('nexttrack', mediaControls.skip);
 }
 
 let onceTimeUpdate = () => {
@@ -544,6 +531,32 @@ let volumechange = () => {
     }
 }
 
+//this handles chrome's media session stuff so when clicking the music thing it'll display correct metadata and controls
+let updateMediaSession = (song) => {
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: song.title,
+            artist: song.artist,
+            album: song.album,
+            artwork: [{src: `http://${hostnamePort}/img/${song.artist}${song.album}.jpg`, sizes: '512x512', type: 'image/jpeg'}]
+        })
+        if ('setPositionState' in navigator.mediaSession) {
+            navigator.mediaSession.setPositionState({
+                duration: audio.duration,
+                playbackRate: audio.playbackRate,
+                position: audio.currentTime
+            });
+        }
+    }
+
+}
+
+if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('previoustrack', mediaControls.prev);
+    navigator.mediaSession.setActionHandler('nexttrack', mediaControls.skip);
+}
+
+//both of these are used for sorting arrays. the first one is used for sorting object arrays while the second one simply sorts the items itself
 let sortArray = (array, sortBy) => {
     function compare(a, b) {
         if (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) return -1;
@@ -560,6 +573,7 @@ let simpleSort = (array) => {
     return array.sort(compare);
 }
 
+//handles updating list orders so when clicking a tab, it'll sort it by artist, then title for example
 let updateListOrder = async (sortBy, isQuery) => {
     let allElements = document.querySelectorAll('.results-link');
     if (highlightedSongs.length != 0) {
@@ -608,6 +622,7 @@ let mainSongListComp = new mainSongList({
 
 let allSongs = [];
 
+//gets all the songs from the server and adds it to the allsongs array
 fetch(`http://${hostnamePort}/api/songs`).then(resp => {
     resp.json().then(songs => {
         if (songs.length == 0) {
@@ -647,6 +662,7 @@ fetch(`http://${hostnamePort}/api/songs`).then(resp => {
     })
 });
 
+//the seek bar component, handles everything related to it
 Vue.component('seek-bar', {
     template:
     `<div id="seekWrapper" v-on:mousedown="down" v-on:touchstart="down" v-on:mouseover="hover" v-on:mouseleave="leave" class="np-ctrl seek">
@@ -674,6 +690,7 @@ new Vue({
     el: '.seek-container'
 })
 
+//volume bar, handles changing the volume using the bar and mute icon
 let volControl = new Vue({
     el: '.controls-right',
     data() {
@@ -705,6 +722,7 @@ let volControl = new Vue({
     }
 });
 
+//more seek bar and volume bar stuff, specifically events like clicking and dragging
 let seekBar;
 let seekBarWrapper;
 let seekFillBar;
@@ -827,8 +845,7 @@ window.addEventListener('touchend', e => {
     mousetouchup(e);
 });
 
-//song time
-
+//handles the timer above the seek bar
 let timeFormat = s => {
     let min = Math.floor(s / 60);
     let sec = Math.floor(s - (min * 60));
@@ -848,6 +865,7 @@ let songTime = new Vue({
     }
 })
 
+//the album art component
 let updateImg = new Vue({
     el: '.np-img',
     data() {
@@ -866,6 +884,7 @@ let updateImg = new Vue({
     }
 });
 
+//the thing that handles adding songs, basically processes the file and uploads it to the server
 let doAddSongs = async (evt, drag) => {
     evt.preventDefault();
     let files = evt.target.files;
@@ -945,11 +964,12 @@ let doAddSongs = async (evt, drag) => {
     }, 1000)
 }
 
-//sidebar
+//sidebar stuff
 let currentActiveTab = 'allButton'
 
 let mountedTab = null;
 
+//handles all the items on the sidebar
 Vue.component('sidebar-items', {
     props: ['sideitem'],
     template:
@@ -1011,6 +1031,7 @@ let sidebar = new Vue({
                 mountedTab.$destroy;
                 document.querySelector('.tab-container').innerHTML = '';
             }
+            highlightedSongs = [];
             switch(item.id) {
                 case "allTab":
                     mainSongListComp = new mainSongList({
@@ -1021,6 +1042,7 @@ let sidebar = new Vue({
                     allSongs.forEach(f => {
                         mainSongListComp.songs.push(f);
                     });
+                    updateListOrder('artist');
                     currentView = "All Songs";
                     tabName.showButtons(false, null, null, null, false, true);
                     mainSongListComp.$mount('.tab-container');
@@ -1030,12 +1052,6 @@ let sidebar = new Vue({
                     tabName.count = mainSongListComp.songs.length;
                     tabName.type = 'songs'
                     mountedTab = mainSongListComp;
-                    break;
-                case "homeTab":
-                    let home = new homeTab;
-                    home.$mount('.tab-container');
-                    mountedTab = homeTab;
-                    currentView = "Home";
                     break;
                 case "albumsTab":
                     album = new albumTab({
@@ -1202,6 +1218,7 @@ let sidebar = new Vue({
     }
 });
 
+//handles the playlists part of the sidebar
 Vue.component('playlist-items', {
     props: ['plitem'],
     template: 
@@ -1263,6 +1280,7 @@ let playlistItems = new Vue({
     }
 })
 
+//gets all the playlist names from the server
 fetch(`http://${hostnamePort}/api/playlists/names`).then(resp => {
     resp.json().then(playlists => {
         playlists.forEach(f => {
@@ -1271,6 +1289,7 @@ fetch(`http://${hostnamePort}/api/playlists/names`).then(resp => {
     })
 })
 
+//the tab name thing so it shows the currently selected tab and amount of songs
 let tabName = new Vue({
     el: '.top-title',
     data() {
@@ -1341,26 +1360,7 @@ let noTab = Vue.extend({
     </div>`
 });
 
-//home tab
-let homeTab = Vue.extend({
-    template: 
-    `<div class="tab-container">
-        <div class="home">
-            <i class="material-icons-outlined missing-icon">home</i>
-            <div>
-                <h1>We're busy building your home tab!</h1>
-                <p>Check back later, you'll see this tab change over time!</p>
-            </div>
-        </div>
-    </div>`
-});
-
-let home = new homeTab
-
-//home.$mount('.tab-container');
-
-//albums tab
-
+//albums tab items, will show album art and album name + artist. when clicked it will load all the songs from the album
 Vue.component('album-items', {
     props: ['album'],
     template:
@@ -1431,6 +1431,7 @@ let albumTab = Vue.extend({
     </div>`
 })
 
+//some mobile stuff but i never finished it so yeah
 let mobileNp = new Vue({
     el: '.np-mobile-container',
     methods: {
@@ -1472,9 +1473,10 @@ let mobileNpExpand = new Vue({
     }
 })
 
-//popup
+//popup window stuff
 let playlistImageEl = "";
 
+//the main popup window function. this sorta acts like a class. it handles the create playlist, edit playlist and add to playlist popups
 let popup = {
     open(wpopup) {
         switch(wpopup) {
@@ -1596,6 +1598,7 @@ let popup = {
     mounted: null
 }
 
+//this is the playlist image loader, will set the background image when changed
 document.querySelector('#addPlaylistImage').addEventListener('change', (evt) => {
     let reader = new FileReader();
     reader.readAsDataURL(evt.target.files[0]);
@@ -1627,6 +1630,7 @@ new Vue({
     }
 })
 
+//this is the html for the create playlist popup
 let createPlaylist = Vue.extend({
     template: 
     `<div class="popup-content">
@@ -1648,6 +1652,7 @@ let createPlaylist = Vue.extend({
     </div>`
 });
 
+//same thing as above but slightly modified for editing playlists instead
 let editPlaylist = Vue.extend({
     template: 
     `<div class="popup-content">
@@ -1669,7 +1674,7 @@ let editPlaylist = Vue.extend({
     </div>`
 });
 
-/* Context menu */
+//context menu stuff, handles click events for the context menu
 Vue.component('ctx-item', {
     props: ['list'],
     template: '<div class="context-item" v-on:click="click"><i class="material-icons-outlined">{{list.icon}}</i><span>{{ list.name }}</span></div>',
@@ -1837,7 +1842,7 @@ let openCtx = (e, type, item) => {
     ctxMenu.style.top = yPosition + 'px';
 }
 
-//addpl
+//add playlist popup
 let addPL = Vue.extend({
     template:
     `<div class="popup-content">
@@ -1845,20 +1850,12 @@ let addPL = Vue.extend({
     </div>`
 })
 
+//some more of the popup
 Vue.component('pl-list', {
     props: ['playlist'],
-    computed: {
-        bg() {
-            //if (this.playlist.image == '/assets/no_album.svg') {
-                return `background-image: url('/assets/no_album.svg')`;
-            //} else {
-                //return `background-image: url('http://${}/${this.playlist.id}.png')`;
-            //}
-        }
-    },
     template:
     `<div v-on:click="add" class="addPl-item">
-        <div class="addPl-img" v-bind:style="bg">
+        <div class="addPl-img">
         </div>
         <span>{{playlist.label}}</span>
     </div>`,
@@ -1898,6 +1895,7 @@ let artistTab = Vue.extend({
     </div>`
 })
 
+//artists stuff, pretty much the same as albums items
 Vue.component('artist-items', {
     props: ['artist'],
     template:
@@ -1938,7 +1936,7 @@ Vue.component('artist-items', {
     }
 });
 
-//add songs
+//add songs stuff so it handles the add songs tab
 document.querySelector('#addSongs').addEventListener('change', doAddSongs);
 
 Vue.component('adding-songs', {

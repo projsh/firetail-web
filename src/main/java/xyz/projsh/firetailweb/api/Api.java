@@ -30,6 +30,8 @@ import xyz.projsh.firetailweb.FiretailWeb;
 /*
     This is the API class. It handles the server's web API.
     Everything here is mapped to /api
+
+    All the other classes in this package are used as objects for sending and receiving data.
 */
 @RestController
 @RequestMapping("/api")
@@ -51,6 +53,11 @@ public class Api {
         return files;
     }
     
+    /*
+        Mapped to /api/songs/search
+        This requires a query parameter, which is the search query.
+        Returns an array of each song that matches (title, artist, album, fileName) the query
+    */
     @GetMapping("/songs/search")
     public Set<GetSong> searchSongs(@RequestParam String query) {
         query = URLDecoder.decode(query, StandardCharsets.UTF_8);
@@ -62,13 +69,19 @@ public class Api {
                  if (song.getString("title").toLowerCase().contains(query) || song.getString("artist").toLowerCase().contains(query) || song.getString("album").toLowerCase().contains(query) || song.getString("fileName").toLowerCase().contains(query)) {
                      files.add(new GetSong(song.getString("title"), song.getString("artist"),song.getString("album"), song.getString("fileName"), song.get("_id").toString(), song.getString("duration")));
                  }
-            } catch(NullPointerException err) {
-
-            }
+            } catch(NullPointerException err) {}
         }
         return files;
     }
     
+    /*
+        Mapped to /songs/add
+        This handles a POST request, so it requires a body.
+        The body is a byte array of the uploaded file's data.
+        The POST request requires a Filename header, which is the file's original filename.
+        This will check the file for the correct format, then writes it to disk.
+        Returns a byte array.
+    */
     @PostMapping("/songs/add")
     public byte[] addSong(@RequestBody byte[] song, @RequestHeader("Filename") String filename) {
         filename = URLDecoder.decode(filename, StandardCharsets.UTF_8);
@@ -84,14 +97,21 @@ public class Api {
             } catch (IOException ex) {
                 Logger.getLogger(Api.class.getName()).log(Level.SEVERE, null, ex);
             }
-            System.out.println(filename);
         } else {
-            System.out.println("what");
             return new byte[] {};
         }
         return song;
     }
     
+    /*
+        Mapped to /songs/delete
+        This handles a POST request, so it requires a body.
+        The body is a string array which contains all the song IDs that
+        need to be removed.
+        This will search the database for the document matching the song ID and
+        then removes it.
+        Returns all songs in the database.
+    */
     @PostMapping("/songs/delete")
     public Set<GetSong> deleteSong(@RequestBody String[] ids) {
         for (String id : ids) {
@@ -148,9 +168,7 @@ public class Api {
                     System.out.println(song.getString("album"));
                     files.add(new GetSong(song.getString("title"), song.getString("artist"),song.getString("album"), song.getString("fileName"), song.get("_id").toString(), song.getString("duration")));
                 }
-            } catch(NullPointerException err) {
-                //System.out.println(err.getMessage());
-            }
+            } catch(NullPointerException err) {}
         }
         return files;
     }
@@ -202,9 +220,7 @@ public class Api {
                     System.out.println(song.getString("artist"));
                     files.add(new GetSong(song.getString("title"), song.getString("artist"),song.getString("album"), song.getString("fileName"), song.get("_id").toString(), song.getString("duration")));
                 }
-            } catch(NullPointerException err) {
-                //System.out.println(err.getMessage());
-            }
+            } catch(NullPointerException err) {}
         }
         return files;
     }
@@ -220,9 +236,7 @@ public class Api {
                 Thread.sleep(1000);
                 FiretailWeb.restart();
                 
-            } catch (InterruptedException err) {
-            
-            }
+            } catch (InterruptedException err) {}
         });
         restartThread.setDaemon(false);
         restartThread.start();
@@ -324,6 +338,13 @@ public class Api {
         return getAllPlaylists();
     }
     
+    /*
+        Mapped to /about
+        Simply returns information about the server, including the OS name,
+        OS version, Java version and the logged in username.
+        Used in the settings server information area.
+        If the OS string matches "Mac OS X", it is changed to "macOS".
+    */
     @GetMapping("/about")
     public String about() {
         String os = System.getProperty("os.name");

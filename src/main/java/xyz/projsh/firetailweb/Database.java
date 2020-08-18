@@ -21,7 +21,11 @@ import java.util.logging.Logger;
 import org.bson.Document;
 
 public class Database {
-
+    
+    /*
+        mix of static variables that let me access the database collections without creating
+        the database class again.
+    */
     public MongoClient mongodb;
     public MongoDatabase db;
     public static MongoCollection<Document> songs;
@@ -30,8 +34,11 @@ public class Database {
     public static String dataDir;
     public static String imgDir;
     
+    /*
+        this will connect to the mongodb database, get the collections and create
+        any missing collections. basically initialises the database portion of the server
+    */
     public Database() {
-        //connect to mongodb. if firetailweb db doesn't exist, mongodb will auto create it
         mongodb = MongoClients.create("mongodb://localhost:27017");
         db = mongodb.getDatabase("firetailweb");
         songs = db.getCollection("songs");
@@ -52,11 +59,11 @@ public class Database {
         }
     }
     
-    public static String getSong(String id) {
-        Document song = songs.find(eq("_id", id)).first();
-        return song.toJson();
-    }
-    
+    /*
+        handles adding songs to the database.
+        this will read the metadata for mp3 and m4a files, save them to the database and
+        create a copy of the song in ~/.firetail-web/songs
+    */
     public static void addSong(File file) {
         String fileLoc = dataDir + "/" + file.getName();
         try {

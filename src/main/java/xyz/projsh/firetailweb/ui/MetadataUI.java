@@ -14,6 +14,11 @@ import java.io.InputStream;
 
 public class MetadataUI extends javax.swing.JFrame {
     
+    /*
+        what this does is read the file selected when double clicking a song in the
+        main gui's song list, then display all the metadata for that file.
+        this includes the song title, artist, album and artwork image.
+    */
     public MetadataUI(String file, String fileName) {
         initComponents();
         setLocationRelativeTo(null);
@@ -187,7 +192,8 @@ public class MetadataUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
+    //this will simply close and dispose the window
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
         this.dispose();
     }//GEN-LAST:event_closeButtonActionPerformed

@@ -9,22 +9,14 @@ import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.UnknownHostException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -40,23 +32,19 @@ import org.bson.Document;
 import xyz.projsh.firetailweb.Database;
 import xyz.projsh.firetailweb.FiretailWeb;
 
+/*
+    This class handles the server's gui.
+*/
 public class MainUI extends javax.swing.JFrame {
     
-    public Set<String> listFilesUsingDirectoryStream(String dir) throws IOException {
-        Set<String> fileList = new HashSet<>();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dir))) {
-            for (Path path : stream) {
-                if (!Files.isDirectory(path)) {
-                    fileList.add(path.getFileName().toString());
-                }
-            }
-        }
-        return fileList;
-    }
-    
+    //link variable is for the web app url and the prefs is for java's preferences thingy
     private String link = "";
     private Preferences prefs = Preferences.userNodeForPackage(this.getClass());
     
+    /*
+        this initialises the frame, sets the look and feel, sets the web app url,
+        sets the firetail icon, 
+    */
     public MainUI() {
         updateLaF();
         initComponents();
@@ -103,36 +91,21 @@ public class MainUI extends javax.swing.JFrame {
         } catch (Exception ex) {
             Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
         }
+        /*
+            this just listens for when the tabbed pane changes, then if the selected one is
+            songs, update the list
+        */
         mainTabPane.addChangeListener(e -> {
             JTabbedPane pane = (JTabbedPane) e.getSource();
-            switch (pane.getTitleAt(pane.getSelectedIndex())) {
-                case "Songs":
-                    updateSongList();
-                break;
-                case "Settings":
-                    Thread getDir = new Thread(() -> {
-                        try {
-                            URL url = new URL("http://localhost:8080/api/currentDir");
-                            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                            con.setRequestMethod("GET");
-                            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                            String inputLine;
-                            StringBuilder content = new StringBuilder();
-                            while ((inputLine = in.readLine()) != null) {
-                                content.append(inputLine);
-                            }
-                            in.close();
-                            con.disconnect();
-                        } catch(IOException err) {
-                            
-                        }
-                    });
-                    getDir.start();
-                break;
+            if (pane.getTitleAt(pane.getSelectedIndex()).equals("Songs")) {
+                updateSongList();
             }
         });
     }
     
+    /*
+        this updates the server's gui theme in real time without recreating the frame
+    */
     public void updateLaF() {
         try {
             if (prefs.get("theme", "light").equals("light")) {
@@ -146,6 +119,10 @@ public class MainUI extends javax.swing.JFrame {
         SwingUtilities.updateComponentTreeUI(this);
     }
     
+    /*
+        this will open the default browser with the link provided.
+        used for the gui's web app link
+    */
     private void openLink(URI link) {
         if (Desktop.isDesktopSupported()) {
             try {
@@ -156,6 +133,10 @@ public class MainUI extends javax.swing.JFrame {
         } else { }
     }
     
+    /*
+        updates the song list by searching the database and pushing every available
+        song to the list
+    */
     private void updateSongList() {
         DefaultListModel listModel = new DefaultListModel();
         FindIterable<Document> songs = Database.songs.find();
@@ -413,11 +394,18 @@ public class MainUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
+    /*
+        simple exit button, self-explanitory
+    */
     private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitButtonActionPerformed
         System.exit(0);
     }//GEN-LAST:event_exitButtonActionPerformed
-
+    
+    /*
+        handles a double click event on the song list. it will open a new window
+        containing the selected song's metadata
+    */
     private void listSongsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listSongsMouseClicked
         if (evt.getClickCount() == 2 && evt.getButton() == MouseEvent.BUTTON1) {
             int index = listSongs.locationToIndex(evt.getPoint());
@@ -430,7 +418,11 @@ public class MainUI extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_listSongsMouseClicked
-
+    
+    /*
+        handles the add songs button. creates a file chooser and proceeds to 
+        loop through them and add to the song database.
+    */
     private void addSongsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSongsButtonActionPerformed
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Choose audio files");
@@ -458,16 +450,19 @@ public class MainUI extends javax.swing.JFrame {
             addSongs.start();
         }
     }//GEN-LAST:event_addSongsButtonActionPerformed
-
+    
+    //when the update list button is clicked, call updatesonglist
     private void updateListButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateListButtonActionPerformed
         updateSongList();
     }//GEN-LAST:event_updateListButtonActionPerformed
-
+    
+    //the same as above but also drops the songs collection (deletes it from the database)
     private void dropSongsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dropSongsButtonActionPerformed
         Database.songs.drop();
         updateSongList();
     }//GEN-LAST:event_dropSongsButtonActionPerformed
-
+    
+    //when the link is clicked open the default web browser
     private void ipStringMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ipStringMouseClicked
         try {
             openLink(new URI(link));
@@ -475,7 +470,8 @@ public class MainUI extends javax.swing.JFrame {
             Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_ipStringMouseClicked
-
+    
+    //when the theme combo box is updated, check the clicked item and update the theme
     private void themeComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_themeComboActionPerformed
         String selectedItem = themeCombo.getSelectedItem().toString();
         if (selectedItem.equals("Dark")) {

@@ -38,7 +38,7 @@
                 <div style="width: 35%"></div>
                 <h3 v-bind:title="title">{{title}}</h3>
                 <div style="width: 35%; text-align: right">
-                    <i v-on:click="closePopup" class="material-icons-outlined">close</i>
+                    <i title="Close panel" v-on:click="closePopup" class="material-icons-outlined">close</i>
                 </div>
             </div>
             <div class="popup-content"></div>
@@ -84,11 +84,11 @@
             <div class="np-container">
                 <div class="controls-left">
                     <div class="media-controls">
-                        <i v-on:click="shuffle($event)" class="material-icons-outlined small-icon">shuffle</i>
-                        <i v-on:click="prev" class="material-icons-outlined">skip_previous</i>
-                        <i v-on:click="playPause" class="material-icons-outlined">{{ playPauseIcon }}</i>
-                        <i v-on:click="skip" class="material-icons-outlined">skip_next</i>
-                        <i v-on:click="repeat($event)" class="material-icons-outlined small-icon">repeat</i>
+                        <i v-on:click="shuffle($event)" class="material-icons-outlined small-icon" title="Shuffle">shuffle</i>
+                        <i v-on:click="prev" class="material-icons-outlined" title="Previous song">skip_previous</i>
+                        <i v-on:click="playPause" class="material-icons-outlined" title="Play/pause">{{ playPauseIcon }}</i>
+                        <i v-on:click="skip" class="material-icons-outlined" title="Next song">skip_next</i>
+                        <i v-on:click="repeat($event)" class="material-icons-outlined small-icon" title="Repeat">repeat</i>
                     </div>
                 </div>
                 <div class="controls-middle">
@@ -118,7 +118,7 @@
                 </div>
                 <div class="controls-right">
                     <div class="right-container">
-                        <i v-on:click="mute" class="material-icons-outlined">{{muteIcon}}</i>
+                        <i title="Mute audio" v-on:click="mute" class="material-icons-outlined">{{muteIcon}}</i>
                         <div id="volWrapper" v-on:mousedown="down" v-on:touchstart="down" v-on:mouseover="hover" v-on:mouseleave="leave" class="vol-wrapper">
                             <div class="vol-bar">
                                 <div class="fill-vol"></div>
